@@ -1,3 +1,4 @@
+/vendor/
 /.phpunit.cache
 /node_modules
 /public/build
@@ -5,7 +6,6 @@
 /public/storage
 /storage/*.key
 /storage/pail
-/vendor
 .env
 .env.backup
 .env.production
