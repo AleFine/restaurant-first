@@ -3,12 +3,26 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Producto; // Cambié el nombre de la clase a Producto
+use App\Models\Producto;
 
+/**
+ * @OA\Tag(
+ *     name="Productos",
+ *     description="Operaciones relacionadas con productos"
+ * )
+ */
 class ProductoController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * @OA\Get(
+     *     path="/api/productos",
+     *     tags={"Productos"},
+     *     summary="Listar todos los productos sumario",
+     *     @OA\Response(
+     *         response=200,
+     *         description="Listado de productos descripción",
+     *     )
+     * )
      */
     public function index()
     {
@@ -17,15 +31,23 @@ class ProductoController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
+     * @OA\Post(
+     *     path="/api/productos",
+     *     tags={"Productos"},
+     *     summary="Crear un nuevo producto",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"nombre", "precio"},
+     *             @OA\Property(property="nombre", type="string", example="Camiseta"),
+     *             @OA\Property(property="precio", type="number", format="float", example=29.99)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Producto creado"
+     *     )
+     * )
      */
     public function store(Request $request)
     {
@@ -34,7 +56,25 @@ class ProductoController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * @OA\Get(
+     *     path="/api/productos/{id}",
+     *     tags={"Productos"},
+     *     summary="Obtener un producto por ID",
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Producto encontrado"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Producto no encontrado"
+     *     )
+     * )
      */
     public function show(string $id)
     {
@@ -46,30 +86,66 @@ class ProductoController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
+     * @OA\Put(
+     *     path="/api/productos/{id}",
+     *     tags={"Productos"},
+     *     summary="Actualizar un producto existente",
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="nombre", type="string", example="Camisa actualizada"),
+     *             @OA\Property(property="precio", type="number", format="float", example=39.99)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Producto actualizado"
+     *     )
+     * )
      */
     public function update(Request $request, string $id)
     {
         $item = Producto::find($id);
         $item->update($request->all());
         return response()->json($item, 200);
-
     }
 
     /**
-     * Remove the specified resource from storage.
+     * @OA\Delete(
+     *     path="/api/productos/{id}",
+     *     tags={"Productos"},
+     *     summary="Eliminar un producto por ID",
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Producto eliminado"
+     *     )
+     * )
      */
     public function destroy(string $id)
     {
         Producto::destroy($id);
         return response()->json(['message' => 'Producto eliminado'], 200);
+    }
+
+    public function create()
+    {
+        //
+    }
+
+    public function edit(string $id)
+    {
+        //
     }
 }
