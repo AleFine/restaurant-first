@@ -1,30 +1,77 @@
 <template>
-    <div class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center">
-      <div class="bg-white p-6 rounded-lg max-w-md w-full">
-        <h2 class="text-xl font-bold mb-4">Confirmar eliminación</h2>
-        <p class="mb-4">¿Está seguro que desea eliminar al comensal "{{ comensal?.nombre }}"?</p>
-        <div class="flex justify-end space-x-2">
-          <button @click="$emit('cancelar')" class="bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 px-4 rounded">
-            Cancelar
-          </button>
-          <button @click="$emit('confirmar')" class="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded">
-            Eliminar
-          </button>
-        </div>
-      </div>
-    </div>
-  </template>
-  
-  <script setup lang="ts">
-  import { defineProps, defineEmits } from 'vue';
-  import type { Comensal } from '../../types/Comensal';
-  
-  defineProps<{
-    comensal: Comensal | null;
-  }>();
-  
-  defineEmits<{
-    confirmar: [];
-    cancelar: [];
-  }>();
-  </script>
+  <v-dialog
+    v-model="dialog"
+    max-width="500px"
+    persistent
+  >
+    <v-card>
+      <v-card-title class="text-h5 bg-error text-white">
+        <v-icon class="mr-2">mdi-alert-circle</v-icon>
+        Confirmar eliminación
+      </v-card-title>
+      
+      <v-card-text class="pt-4">
+        <p class="text-body-1">
+          ¿Está seguro que desea eliminar al comensal <strong>"{{ comensal?.nombre }}"</strong>?
+        </p>
+        <p class="text-body-2 text-grey-darken-1 mt-2">
+          Esta acción no se puede deshacer.
+        </p>
+      </v-card-text>
+      
+      <v-card-actions class="pa-4">
+        <v-spacer></v-spacer>
+        <v-btn
+          color="secondary"
+          variant="text"
+          @click="onCancel"
+          prepend-icon="mdi-close"
+        >
+          Cancelar
+        </v-btn>
+        <v-btn
+          color="error"
+          variant="elevated"
+          @click="onConfirm"
+          prepend-icon="mdi-delete"
+        >
+          Eliminar
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+</template>
+
+<script setup lang="ts">
+import { defineEmits, ref, watch } from 'vue';
+import type { Comensal } from '../../../types/Comensal';
+
+const props = defineProps<{
+  comensal: Comensal | null;
+  modelValue?: boolean;
+}>();
+
+const emit = defineEmits<{
+  confirmar: [];
+  cancelar: [];
+  'update:modelValue': [value: boolean];
+}>();
+
+const dialog = ref(!!props.modelValue);
+
+watch(() => props.modelValue, (newValue) => {
+  dialog.value = !!newValue;
+});
+
+watch(dialog, (newValue) => {
+  emit('update:modelValue', newValue);
+});
+
+const onConfirm = () => {
+  emit('confirmar');
+};
+
+const onCancel = () => {
+  emit('cancelar');
+};
+</script>

@@ -1,31 +1,38 @@
 <template>
-  <div class="flex items-center">
-    <span class="mr-2 text-sm text-gray-700">Ordenar por:</span>
-    <select 
-      :value="sortBy" 
-      @change="onSortByChange"
-      class="p-2 border rounded mr-2"
-    >
-      <option value="nombre">Nombre</option>
-      <option value="correo">Correo</option>
-      <option value="telefono">Teléfono</option>
-    </select>
+  <div class="d-flex align-center">
+    <v-icon class="mr-2">mdi-sort</v-icon>
+    <span class="text-body-2 mr-2">Ordenar por:</span>
     
-    <select 
-      :value="sortDir" 
-      @change="onSortDirChange"
-      class="p-2 border rounded"
+    <v-select
+      v-model="localSortBy"
+      :items="sortOptions"
+      variant="outlined"
+      density="comfortable"
+      hide-details
+      class="mr-2"
+      style="max-width: 150px;"
+    ></v-select>
+    
+    <v-btn-toggle
+      v-model="localSortDir"
+      mandatory
+      density="comfortable"
+      color="primary"
     >
-      <option value="asc">Ascendente</option>
-      <option value="desc">Descendente</option>
-    </select>
+      <v-btn value="asc" icon>
+        <v-icon>mdi-sort-ascending</v-icon>
+      </v-btn>
+      <v-btn value="desc" icon>
+        <v-icon>mdi-sort-descending</v-icon>
+      </v-btn>
+    </v-btn-toggle>
   </div>
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits } from 'vue';
+import { defineEmits, ref, watch } from 'vue';
 
-defineProps<{
+const props = defineProps<{
   sortBy: string;
   sortDir: 'asc' | 'desc';
 }>();
@@ -36,15 +43,31 @@ const emit = defineEmits<{
   'update:ordenamiento': [];
 }>();
 
-const onSortByChange = (event: Event) => {
-  const target = event.target as HTMLSelectElement;
-  emit('update:sortBy', target.value);
-  emit('update:ordenamiento');
-};
+const sortOptions = [
+  { title: 'Nombre', value: 'nombre' },
+  { title: 'Correo', value: 'correo' },
+  { title: 'Teléfono', value: 'telefono' }
+];
 
-const onSortDirChange = (event: Event) => {
-  const target = event.target as HTMLSelectElement;
-  emit('update:sortDir', target.value as 'asc' | 'desc');
+const localSortBy = ref(props.sortBy);
+const localSortDir = ref(props.sortDir);
+
+watch(localSortBy, (newValue) => {
+  emit('update:sortBy', newValue);
   emit('update:ordenamiento');
-};
+});
+
+watch(localSortDir, (newValue) => {
+  emit('update:sortDir', newValue);
+  emit('update:ordenamiento');
+});
+
+// Watch for external changes
+watch(() => props.sortBy, (newValue) => {
+  localSortBy.value = newValue;
+});
+
+watch(() => props.sortDir, (newValue) => {
+  localSortDir.value = newValue;
+});
 </script>
