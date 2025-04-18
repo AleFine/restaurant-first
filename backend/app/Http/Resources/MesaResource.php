@@ -14,6 +14,11 @@ class MesaResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return [
+            'id_mesa' => $this->id_mesa,
+            'numero_mesa' => $this->numero_mesa,
+            'capacidad' => $this->capacidad,
+            'ubicacion' => $this->ubicacion,
+        ];
     }
 }
