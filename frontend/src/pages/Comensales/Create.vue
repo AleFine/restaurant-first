@@ -6,7 +6,7 @@
       <p>{{ error }}</p>
     </div>
     
-    <form @submit.prevent="guardarComensal" class="max-w-lg mx-auto bg-white p-6 rounded-lg shadow-md">
+    <form @submit.prevent="handleGuardar" class="max-w-lg mx-auto bg-white p-6 rounded-lg shadow-md">
       <div class="mb-4">
         <label for="nombre" class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
         <input 
@@ -68,12 +68,15 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { createComensal } from '../../api/comensales';
+import { useComensalesStore } from '../../composables/useComensalesStore';
 import type { Comensal } from '../../types/Comensal';
 
 const router = useRouter();
 const saving = ref(false);
 const error = ref<string | null>(null);
+
+// Use store composable for CRUD operations
+const { guardarComensal } = useComensalesStore();
 
 const comensal = ref<Comensal>({
   nombre: '',
@@ -82,12 +85,11 @@ const comensal = ref<Comensal>({
   direccion: ''
 });
 
-const guardarComensal = async () => {
+const handleGuardar = async () => {
   saving.value = true;
   error.value = null;
-  
   try {
-    await createComensal(comensal.value);
+    await guardarComensal(comensal.value);
     router.push('/comensales');
   } catch (err) {
     error.value = 'Error al guardar el comensal. Por favor, intente nuevamente.';

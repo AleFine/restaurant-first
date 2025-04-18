@@ -46,7 +46,7 @@ class ReservaController extends Controller
             // ordenamiento
             $sortField = $request->input('sort_by', 'fecha');
             $sortDirection = $request->input('sort_dir', 'desc');
-            $allowedSortFields = ['fecha', 'hora', 'numero_de_personas', 'created_at'];
+            $allowedSortFields = ['fecha', 'hora', 'numero_de_personas'];
             
             if (in_array($sortField, $allowedSortFields)) {
                 $query->orderBy($sortField, $sortDirection === 'desc' ? 'desc' : 'asc');

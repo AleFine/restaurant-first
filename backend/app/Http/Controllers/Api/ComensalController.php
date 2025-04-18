@@ -42,7 +42,7 @@ class ComensalController extends Controller
             // ordenamiento por nombre y ascendente
             $sortField = $request->input('sort_by', 'nombre');
             $sortDirection = $request->input('sort_dir', 'asc');
-            $allowedSortFields = ['nombre', 'correo', 'telefono', 'created_at'];
+            $allowedSortFields = ['nombre', 'correo', 'telefono'];
             
             if (in_array($sortField, $allowedSortFields)) {
                 $query->orderBy($sortField, $sortDirection === 'desc' ? 'desc' : 'asc');

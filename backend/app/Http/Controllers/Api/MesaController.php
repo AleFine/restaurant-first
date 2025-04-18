@@ -39,7 +39,7 @@ class MesaController extends Controller
             // Ordenamiento
             $sortField = $request->input('sort_by', 'numero_mesa');
             $sortDirection = $request->input('sort_dir', 'asc');
-            $allowedSortFields = ['numero_mesa', 'capacidad', 'ubicacion', 'created_at'];
+            $allowedSortFields = ['numero_mesa', 'capacidad', 'ubicacion'];
             
             if (in_array($sortField, $allowedSortFields)) {
                 $query->orderBy($sortField, $sortDirection === 'desc' ? 'desc' : 'asc');

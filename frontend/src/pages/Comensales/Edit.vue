@@ -10,7 +10,7 @@
       <p>{{ error }}</p>
     </div>
     
-    <form v-else @submit.prevent="actualizarComensal" class="max-w-lg mx-auto bg-white p-6 rounded-lg shadow-md">
+    <form v-else @submit.prevent="handleActualizar" class="max-w-lg mx-auto bg-white p-6 rounded-lg shadow-md">
       <div class="mb-4">
         <label for="nombre" class="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
         <input 
@@ -72,7 +72,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { fetchComensales, updateComensal } from '../../api/comensales';
+import { useComensalesStore } from '../../composables/useComensalesStore';
 import type { Comensal } from '../../types/Comensal';
 
 const router = useRouter();
@@ -83,44 +83,31 @@ const loading = ref(true);
 const saving = ref(false);
 const error = ref<string | null>(null);
 
-const comensal = ref<Comensal>({
-  id_comensal: comensalId,
-  nombre: '',
-  correo: '',
-  telefono: '',
-  direccion: ''
-});
+const comensal = ref<Comensal>({ id_comensal: comensalId, nombre: '', correo: '', telefono: '', direccion: '' });
 
-const cargarComensal = async () => {
+const { obtenerComensal, modificarComensal } = useComensalesStore();
+
+onMounted(async () => {
   loading.value = true;
   error.value = null;
-  
   try {
-    const response = await fetchComensales();
-    const comensalEncontrado = response.data.find((c: Comensal) => c.id_comensal === comensalId);
-    
-    if (comensalEncontrado) {
-      comensal.value = { ...comensalEncontrado };
-    } else {
-      error.value = 'No se encontró el comensal solicitado.';
-      setTimeout(() => router.push('/comensales'), 3000);
-    }
+    const data = await obtenerComensal(comensalId);
+    comensal.value = data;
   } catch (err) {
     error.value = 'Error al cargar los datos del comensal. Por favor, intente nuevamente.';
-    console.error('Error al cargar comensal:', err);
+    console.error('Error al obtener comensal:', err);
+    setTimeout(() => router.push('/comensales'), 3000);
   } finally {
     loading.value = false;
   }
-};
+});
 
-const actualizarComensal = async () => {
+const handleActualizar = async () => {
   if (!comensal.value.id_comensal) return;
-  
   saving.value = true;
   error.value = null;
-  
   try {
-    await updateComensal(comensal.value.id_comensal, comensal.value);
+    await modificarComensal(comensal.value.id_comensal, comensal.value);
     router.push('/comensales');
   } catch (err) {
     error.value = 'Error al actualizar el comensal. Por favor, intente nuevamente.';
@@ -129,10 +116,6 @@ const actualizarComensal = async () => {
     saving.value = false;
   }
 };
-
-onMounted(() => {
-  cargarComensal();
-});
 </script>
 
 <style scoped>
