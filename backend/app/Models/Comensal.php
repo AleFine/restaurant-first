@@ -17,6 +17,6 @@ class Comensal extends Model
 
     public function reservas()
     {
-        return $this->hasMany(Reserva::class, 'id_comensal', 'id_comensal');
+        return $this->hasMany(Reserva::class, 'id_comensal');
     }
 }

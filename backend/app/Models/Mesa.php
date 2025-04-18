@@ -17,6 +17,6 @@ class Mesa extends Model
 
     public function reservas()
     {
-        return $this->hasMany(Reserva::class, 'id_mesa', 'id_mesa');
+        return $this->hasMany(Reserva::class, 'id_mesa');
     }
 }

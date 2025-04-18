@@ -3,6 +3,6 @@ export interface Reserva {
     fecha: string;
     hora: string;
     numero_de_personas: number;
-    comensal_id: number;
-    mesa_id: number;
+    id_comensal: number;
+    id_mesa: number;
 }
