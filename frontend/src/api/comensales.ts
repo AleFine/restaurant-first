@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { Comensal } from '../types/Comensal';
 
-const API = 'http://localhost:8000/api/comensales';
+const API = 'http://localhost:8080/api/comensales';
 
 export const fetchComensales = () => axios.get(API);
 export const createComensal = (data: Comensal) => axios.post(API, data);

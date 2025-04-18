@@ -83,13 +83,25 @@ const error = ref<string | null>(null);
 const showDeleteModal = ref(false);
 const comensalAEliminar = ref<Comensal | null>(null);
 
-const cargarComensales = async () => {
+const pagination = ref({
+  currentPage: 1,
+  lastPage: 1,
+  total: 0
+});
+
+const cargarComensales = async (page = 1) => {
   loading.value = true;
   error.value = null;
   
   try {
-    const response = await fetchComensales();
-    comensales.value = response.data;
+    const response = await fetchComensales({ page });
+    comensales.value = response.data.data;
+    
+    pagination.value = {
+      currentPage: response.data.meta.current_page,
+      lastPage: response.data.meta.last_page,
+      total: response.data.meta.total
+    };
   } catch (err) {
     error.value = 'Error al cargar los comensales. Por favor, intente nuevamente.';
     console.error('Error al cargar comensales:', err);

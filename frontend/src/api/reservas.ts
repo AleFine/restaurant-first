@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { Reserva } from '../types/Reserva';
 
-const API = 'http://localhost:8000/api/reservas';
+const API = 'http://localhost:8080/api/reservas';
 
 export const fetchReservas = () => axios.get(API);
 export const createReserva = (data: Reserva) => axios.post(API, data);

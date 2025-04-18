@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { Mesa } from '../types/Mesa';
 
-const API = 'http://localhost:8000/api/mesas';
+const API = 'http://localhost:8080/api/mesas';
 
 export const fetchMesas = () => axios.get(API);
 export const createMesa = (data: Mesa) => axios.post(API, data);
