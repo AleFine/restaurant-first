@@ -7,5 +7,5 @@
   "compilerOptions": {
     "strict": true,
     "types": ["vuetify"],
-  }
+  },
 }

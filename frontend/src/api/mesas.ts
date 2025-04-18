@@ -11,6 +11,7 @@ export interface MesaParams {
     ubicacion?: string;
     sort_by?: string;
     sort_dir?: 'asc' | 'desc';
+    id_mesa?: number;
 }
 
 export const fetchMesas = (params?: MesaParams) => axios.get(API, { params });

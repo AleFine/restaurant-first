@@ -27,7 +27,8 @@ export const useComensalesStore = () => {
     correo: '',
     telefono: '',
     sort_by: 'nombre',
-    sort_dir: 'asc'
+    sort_dir: 'asc',
+    id_comensal: undefined as any
   });
 
   // Función para cargar comensales con todos los parámetros

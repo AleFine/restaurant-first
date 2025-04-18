@@ -27,7 +27,8 @@ export const useMesasStore = () => {
     capacidad: undefined as any,
     ubicacion: undefined as any,
     sort_by: 'numero_mesa',
-    sort_dir: 'asc'
+    sort_dir: 'asc',
+    id_mesa: undefined as any
   });
 
   // Función para cargar mesas con todos los parámetros

@@ -26,6 +26,19 @@ const routes = [
     path: '/mesas/editar/:id',
     component: () => import('../pages/Mesas/Edit.vue'),
   },
+  // Rutas para las reservas
+  {
+    path: '/reservas',
+    component: () => import('../pages/Reservas/Index.vue'),
+  },
+  {
+    path: '/reservas/nuevo',
+    component: () => import('../pages/Reservas/views/Create.vue'),
+  },
+  {
+    path: '/reservas/editar/:id',
+    component: () => import('../pages/Reservas/views/Edit.vue'),
+  },
 ]
 
 const router = createRouter({
