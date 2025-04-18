@@ -126,8 +126,8 @@ import ComensalesOrdenamiento from './components/ComensalesOrdenamiento.vue';
 import ComensalesTabla from './components/ComensalesTabla.vue';
 import ComensalesPaginacion from './components/ComensalesPaginacion.vue';
 import ConfirmarEliminacionModal from './modals/ConfirmarEliminacionModal.vue';
-import { useComensalesStore } from '../../composables/useComensalesStore';
-import { useModalState } from '../../composables/useModalState';
+import { useComensalesStore } from './composables/useComensalesStore.ts';
+import { useDeleteModalState } from '../../composables/useDeleteModalState.ts';
 import type { Comensal } from '../../types/Comensal';
 
 const router = useRouter();
@@ -145,10 +145,10 @@ const {
 
 const {
   showDeleteModal,
-  comensalAEliminar,
-  confirmarEliminacion,
-  cerrarModal
-} = useModalState<Comensal>();
+  itemToDelete: comensalAEliminar,
+  confirmDelete: confirmarEliminacion,
+  closeModal: cerrarModal
+} = useDeleteModalState<Comensal>();
 
 // Snackbar state
 const showSnackbar = ref(false);

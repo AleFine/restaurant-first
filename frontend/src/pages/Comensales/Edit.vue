@@ -126,7 +126,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { useComensalesStore } from '../../composables/useComensalesStore';
+import { useComensalesStore } from './composables/useComensalesStore';
 import type { Comensal } from '../../types/Comensal';
 
 const router = useRouter();

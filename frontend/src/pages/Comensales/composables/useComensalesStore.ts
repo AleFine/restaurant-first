@@ -1,6 +1,6 @@
 import { ref, reactive } from 'vue';
-import { fetchComensales, deleteComensal, createComensal, updateComensal as apiUpdateComensal, fetchComensal as apiFetchComensal, type ComensalParams } from '../api/comensales';
-import type { Comensal } from '../types/Comensal';
+import { fetchComensales, deleteComensal, createComensal, updateComensal as apiUpdateComensal, fetchComensal as apiFetchComensal, type ComensalParams } from '../../../api/comensales';
+import type { Comensal } from '../../../types/Comensal';
 
 export const useComensalesStore = () => {
   // Estado
