@@ -13,6 +13,19 @@ const routes = [
     path: '/comensales/editar/:id',
     component: () => import('../pages/Comensales/Edit.vue'),
   },
+  // Rutas para las mesas
+  {
+    path: '/mesas',
+    component: () => import('../pages/Mesas/Index.vue'),
+  },
+  {
+    path: '/mesas/nuevo',
+    component: () => import('../pages/Mesas/Create.vue'),
+  },
+  {
+    path: '/mesas/editar/:id',
+    component: () => import('../pages/Mesas/Edit.vue'),
+  },
 ]
 
 const router = createRouter({
