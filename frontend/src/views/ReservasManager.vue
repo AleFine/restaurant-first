@@ -8,17 +8,12 @@
           <v-icon size="small" class="mr-2">mdi-filter-outline</v-icon>
           Filtros
         </v-btn>
-        <v-btn v-if="activeTab === 'reservas'" color="primary" @click="handleNewReserva">
+        <v-btn v-if="activeTab === 'reservas'" color="primary" @click="handleNewReserva" hidden>
           <v-icon size="small" class="mr-2">mdi-plus</v-icon>
-          Nueva Reserva
         </v-btn>
-        <v-btn v-else-if="activeTab === 'comensales'" color="primary" @click="handleNewComensal">
-          <v-icon size="small" class="mr-2">mdi-plus</v-icon>
-          Nuevo Comensal
+        <v-btn v-else-if="activeTab === 'comensales'" color="primary" @click="handleNewComensal" hidden>
         </v-btn>
-        <v-btn v-else-if="activeTab === 'mesas'" color="primary" @click="handleNewMesa">
-          <v-icon size="small" class="mr-2">mdi-plus</v-icon>
-          Nueva Mesa
+        <v-btn v-else-if="activeTab === 'mesas'" color="primary" @click="handleNewMesa" hidden>
         </v-btn>
       </div>
     </div>

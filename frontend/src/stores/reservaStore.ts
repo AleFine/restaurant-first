@@ -16,7 +16,7 @@ export const useReservaStore = defineStore('reservas', {
     } as PaginationOptions,
     filters: {
       searchTerm: '',
-      date: new Date().toISOString().split('T')[0]
+      date: ''
     } as FilterOptions
   }),
 
@@ -60,10 +60,10 @@ export const useReservaStore = defineStore('reservas', {
       }
     },
 
-    async updateReserva(id: number, reserva: Partial<Reserva>) {
+    async updateReserva(id_reserva: number, reserva: Partial<Reserva>) {
       this.loading = true;
       try {
-        await reservaService.update(id, reserva);
+        await reservaService.update(id_reserva, reserva);
         await this.fetchReservas();
         return true;
       } catch (error) {
@@ -75,10 +75,10 @@ export const useReservaStore = defineStore('reservas', {
       }
     },
 
-    async deleteReserva(id: number) {
+    async deleteReserva(id_reserva: number) {
       this.loading = true;
       try {
-        await reservaService.delete(id);
+        await reservaService.delete(id_reserva);
         await this.fetchReservas();
         return true;
       } catch (error) {
@@ -110,7 +110,7 @@ export const useReservaStore = defineStore('reservas', {
     clearFilters() {
       this.filters = {
         searchTerm: '',
-        date: new Date().toISOString().split('T')[0]
+        date: ''
       };
       this.pagination.page = 1;
       this.fetchReservas();

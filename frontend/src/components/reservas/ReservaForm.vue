@@ -56,9 +56,16 @@
               type="number"
               min="1"
               prepend-inner-icon="mdi-account-group"
-              :rules="[rules.required, rules.minValue(1)]"
+              :key="(forceValidation)"
+              :rules="[
+                rules.required, 
+                rules.minValue(1),
+                rules.capacidadMesa() // <-- Nueva validación
+              ]"
             ></v-text-field>
+            
           </v-col>
+          
           <v-col cols="12" sm="6">
             <v-autocomplete
               v-model="form.id_mesa"
@@ -82,6 +89,9 @@
             </v-autocomplete>
           </v-col>
         </v-row>
+        
+
+        
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
@@ -119,6 +129,7 @@
     },
     emits: ['submit', 'cancel'],
     setup(props, { emit }) {
+      const forceValidation = ref(0);
       const form = ref({
         fecha: new Date().toISOString().split('T')[0],
         hora: '20:00',
@@ -126,19 +137,45 @@
         id_comensal: null as Comensal | null,
         id_mesa: null as Mesa | null
       });
-  
+
+      watch(() => form.value.id_mesa, () => {
+        forceValidation.value++;
+      });
+
       const isEdit = computed(() => !!props.initialValue);
       const isFormValid = computed(() => {
-        return !!form.value.fecha && 
-               !!form.value.hora && 
-               !!form.value.numero_de_personas && 
-               !!form.value.id_comensal &&
-               !!form.value.id_mesa;
+      const personasValidas = form.value.id_mesa 
+        ? form.value.numero_de_personas <= form.value.id_mesa.capacidad
+        : false;
+
+      return !!form.value.fecha && 
+            !!form.value.hora && 
+            !!form.value.numero_de_personas && 
+            !!form.value.id_comensal &&
+            !!form.value.id_mesa &&
+            personasValidas; 
       });
   
       const rules = {
         required: (v: any) => !!v || 'Este campo es requerido',
-        minValue: (min: number) => (v: number) => v >= min || `El valor debe ser mayor o igual a ${min}`
+        minValue: (min: number) => (v: number) => v >= min || `El valor debe ser mayor o igual a ${min}`,
+        // Nueva regla para validar capacidad
+        capacidadMesa: () => (v: number) => {
+          const mesa = form.value.id_mesa;
+          return !mesa || v <= mesa.capacidad 
+            ? true 
+            : `La mesa solo tiene capacidad para ${mesa.capacidad} personas`;
+        }
+      };
+  
+      const resetForm = () => {
+        form.value = {
+          fecha: new Date().toISOString().split('T')[0],
+          hora: '20:00',
+          numero_de_personas: 2,
+          id_comensal: null,
+          id_mesa: null
+        };
       };
   
       watch(() => props.initialValue, (newValue) => {
@@ -154,16 +191,6 @@
           resetForm();
         }
       }, { immediate: true });
-  
-      const resetForm = () => {
-        form.value = {
-          fecha: new Date().toISOString().split('T')[0],
-          hora: '20:00',
-          numero_de_personas: 2,
-          id_comensal: null,
-          id_mesa: null
-        };
-      };
   
       const submit = () => {
         if (!isFormValid.value) return;
@@ -184,11 +211,13 @@
       };
   
       return {
+        forceValidation,
         form,
         isEdit,
         isFormValid,
         rules,
-        submit
+        submit,
+        resetForm
       };
     }
   });
