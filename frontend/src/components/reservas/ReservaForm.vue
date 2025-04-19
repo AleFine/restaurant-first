@@ -74,8 +74,11 @@
               label="Mesa"
               placeholder="Seleccionar mesa"
               prepend-inner-icon="mdi-table-furniture"
-              :rules="[rules.required]"
+              :rules="[rules.required, rules.mesaDisponible()]"
               return-object
+              :key="forceValidation"
+              :error-messages="mesaError"
+              @update:model-value="checkMesaDisponible"
             >
               <template v-slot:item="{ item, props }">
                 <v-list-item v-bind="props">
@@ -104,7 +107,9 @@
   <script lang="ts">
   import { defineComponent, ref, computed, watch } from 'vue';
   import type { Reserva, Comensal, Mesa } from '../../types';
+
   
+
   export default defineComponent({
     name: 'ReservaForm',
     props: {
@@ -123,7 +128,11 @@
       loading: {
         type: Boolean,
         default: false
-      }
+      },
+      reservas: {
+        type: Array as () => Reserva[],
+        required: true
+      },
     },
     emits: ['submit', 'cancel'],
     setup(props, { emit }) {
@@ -140,19 +149,63 @@
         forceValidation.value++;
       });
 
+      watch([() => form.value.fecha, () => form.value.hora], () => {
+        forceValidation.value++; // Forzar re-render de validaciones
+      });
+
+      const mesaError = ref('');
+
+      const checkMesaDisponible = () => {
+        if (!form.value.id_mesa) return;
+        
+        const disponible = isMesaDisponible(
+          form.value.fecha,
+          form.value.hora,
+          form.value.id_mesa.id_mesa,
+          props.initialValue?.id_reserva
+        );
+        
+        mesaError.value = disponible ? '' : 'Mesa no disponible';
+      };
+
       const isEdit = computed(() => !!props.initialValue);
       const isFormValid = computed(() => {
-      const personasValidas = form.value.id_mesa 
-        ? form.value.numero_de_personas <= form.value.id_mesa.capacidad
-        : false;
+        const personasValidas = form.value.id_mesa 
+          ? form.value.numero_de_personas <= form.value.id_mesa.capacidad
+          : false;
 
-      return !!form.value.fecha && 
-            !!form.value.hora && 
-            !!form.value.numero_de_personas && 
-            !!form.value.id_comensal &&
-            !!form.value.id_mesa &&
-            personasValidas; 
+        const mesaDisponible = form.value.id_mesa
+          ? isMesaDisponible(
+              form.value.fecha,
+              form.value.hora,
+              form.value.id_mesa!.id_mesa,
+              props.initialValue?.id_reserva
+            )
+          : false;
+        return !!form.value.fecha && 
+              !!form.value.hora && 
+              !!form.value.numero_de_personas && 
+              !!form.value.id_comensal &&
+              !!form.value.id_mesa &&
+              personasValidas &&
+              mesaDisponible; 
       });
+
+      const isMesaDisponible = (fecha: string, hora: string, idMesa?: number, idReserva?: number): boolean => {
+        if (!fecha || !hora || !idMesa) return true;
+        
+        // Normalizar formato de hora (HH:mm)
+        const horaNormalizada = hora.substring(0, 5);
+        
+        return !props.reservas.some(reserva => {
+          if (idReserva && reserva.id_reserva === idReserva) return false;
+          
+          // Comparar fechas en formato ISO y horas normalizadas
+          return reserva.fecha === fecha && 
+                reserva.hora.substring(0, 5) === horaNormalizada && 
+                reserva.id_mesa === idMesa;
+        });
+      };
   
       const rules = {
         required: (v: any) => !!v || 'Este campo es requerido',
@@ -163,6 +216,18 @@
           return !mesa || v <= mesa.capacidad 
             ? true 
             : `La mesa solo tiene capacidad para ${mesa.capacidad} personas`;
+        },
+
+        mesaDisponible: () => {
+          return (_: any) => {  // Using underscore to indicate intentionally unused parameter
+            if (!form.value.id_mesa || !form.value.fecha || !form.value.hora) return true;
+            
+            const idReserva = props.initialValue?.id_reserva;
+            const idMesa = form.value.id_mesa.id_mesa;
+            
+            return isMesaDisponible(form.value.fecha, form.value.hora, idMesa, idReserva) || 
+                  'Esta mesa ya está reservada para la fecha y hora seleccionadas';
+          };
         }
       };
   
@@ -192,6 +257,15 @@
   
       const submit = () => {
         if (!isFormValid.value) return;
+
+        if (!form.value.id_mesa || !isMesaDisponible(
+          form.value.fecha, 
+          form.value.hora,
+          form.value.id_mesa.id_mesa,
+          props.initialValue?.id_reserva
+        )) {
+          return;
+        }
   
         const reservaData: Partial<Reserva> = {
           fecha: form.value.fecha,
@@ -215,7 +289,10 @@
         isFormValid,
         rules,
         submit,
-        resetForm
+        resetForm,
+        isMesaDisponible,
+        checkMesaDisponible,
+        mesaError,
       };
     }
   });

@@ -57,6 +57,7 @@
             :initial-value="selectedReserva"
             :comensales="comensales"
             :mesas="mesas"
+            :reservas="currentReservas"
             :loading="reservaStore.loading"
             @submit="saveReserva"
             @cancel="closeReservaDialog"
@@ -402,6 +403,7 @@ export default defineComponent({
           }
         }
       } catch (error) {
+        
         console.error('Error saving reserva:', error);
         showNotification('Error al guardar la reserva', 'error');
       }

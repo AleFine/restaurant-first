@@ -95,6 +95,7 @@
   <script lang="ts">
   import { defineComponent } from 'vue';
   import type { Reserva } from '../../types/index';
+  import { format, parseISO } from 'date-fns';
   
   export default defineComponent({
     name: 'ReservaList',
@@ -123,7 +124,14 @@
     emits: ['new', 'edit', 'delete', 'update:page'],
     setup() {
       const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString();
+        if (!dateString) return '';
+        
+        try {
+          return format(parseISO(dateString), 'dd/MM/yyyy');
+        } catch (e) {
+          console.error('Error formatting date:', e);
+          return dateString; 
+        }
       };
   
       return {
