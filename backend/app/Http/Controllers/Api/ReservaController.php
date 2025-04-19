@@ -30,18 +30,23 @@ class ReservaController extends Controller
             $query->when($request->filled('date'), function ($q) use ($request) {
                 return $q->whereDate('fecha', $request->date);
             });
+
             // Filtro genérico por término de búsqueda: comensal, mesa o número personas
             $query->when($request->filled('searchTerm'), function ($q) use ($request) {
                 $term = $request->searchTerm;
-                return $q->whereHas('comensal', function ($q2) use ($term) {
+                return $q->where(function($sub) use ($term) {
+                    $sub->whereHas('comensal', function ($q2) use ($term) {
                             $q2->where('nombre', 'LIKE', "%{$term}%")
                                 ->orWhere('telefono', 'LIKE', "%{$term}%")
                                 ->orWhere('correo', 'LIKE', "%{$term}%");
                         })
                         ->orWhereHas('mesa', function ($q3) use ($term) {
                             $q3->where('numero_mesa', 'LIKE', "%{$term}%");
-                        })
-                        ->orWhere('numero_de_personas', '>=', $term);
+                        });
+                    if (is_numeric($term)) {
+                        $sub->orWhere('numero_de_personas', '>=', (int)$term);
+                    }
+                });
             });
 
             $reservas = $query->paginate($perPage)->appends($request->query());
