@@ -14,6 +14,8 @@
         </v-btn>
       </div>
     </v-card-item>
+    <!-- Loading indicator -->
+    <v-progress-linear v-if="loading" indeterminate color="primary"></v-progress-linear>
     <v-card-text>
       <v-table>
         <thead>

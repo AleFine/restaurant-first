@@ -433,18 +433,18 @@ export default defineComponent({
     const saveComensal = async (comensal: Partial<Comensal>) => {
       try {
         if (comensal.id_comensal) {
-          // Update existing comensal
           const success = await comensalStore.updateComensal(comensal.id_comensal, comensal);
           if (success) {
+            await reservaStore.fetchReservas();
             showNotification('Comensal actualizado correctamente', 'success');
             closeComensalDialog();
           } else {
             showNotification('Error al actualizar el comensal', 'error');
           }
         } else {
-          // Create new comensal
           const success = await comensalStore.createComensal(comensal as Omit<Comensal, 'id_comensal'>);
           if (success) {
+            await reservaStore.fetchReservas();
             showNotification('Comensal creado correctamente', 'success');
             closeComensalDialog();
           } else {
@@ -481,18 +481,18 @@ export default defineComponent({
     const saveMesa = async (mesa: Partial<Mesa>) => {
       try {
         if (mesa.id_mesa) {
-          // Update existing mesa
           const success = await mesaStore.updateMesa(mesa.id_mesa, mesa);
           if (success) {
+            await reservaStore.fetchReservas();
             showNotification('Mesa actualizada correctamente', 'success');
             closeMesaDialog();
           } else {
             showNotification('Error al actualizar la mesa', 'error');
           }
         } else {
-          // Create new mesa
           const success = await mesaStore.createMesa(mesa as Omit<Mesa, 'id_mesa'>);
           if (success) {
+            await reservaStore.fetchReservas();
             showNotification('Mesa creada correctamente', 'success');
             closeMesaDialog();
           } else {
@@ -530,6 +530,7 @@ export default defineComponent({
           case 'comensal':
             success = await comensalStore.deleteComensal(id);
             if (success) {
+              await reservaStore.fetchReservas();
               showNotification('Comensal eliminado correctamente', 'success');
             } else {
               showNotification('Error al eliminar el comensal', 'error');
@@ -538,6 +539,7 @@ export default defineComponent({
           case 'mesa':
             success = await mesaStore.deleteMesa(id);
             if (success) {
+              await reservaStore.fetchReservas();
               showNotification('Mesa eliminada correctamente', 'success');
             } else {
               showNotification('Error al eliminar la mesa', 'error');
