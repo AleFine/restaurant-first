@@ -42,7 +42,6 @@
         >
           <template v-slot:item="{ item, props }">
             <v-list-item v-bind="props">
-              <v-list-item-title>{{ item.raw.nombre }}</v-list-item-title>
               <v-list-item-subtitle>{{ item.raw.telefono || item.raw.correo }}</v-list-item-subtitle>
             </v-list-item>
           </template>
@@ -80,7 +79,6 @@
             >
               <template v-slot:item="{ item, props }">
                 <v-list-item v-bind="props">
-                  <v-list-item-title>Mesa {{ item.raw.numero_mesa }}</v-list-item-title>
                   <v-list-item-subtitle>
                     {{ item.raw.capacidad }} personas {{ item.raw.ubicacion ? `· ${item.raw.ubicacion}` : '' }}
                   </v-list-item-subtitle>

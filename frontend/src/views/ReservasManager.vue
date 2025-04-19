@@ -124,8 +124,21 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn variant="outlined" @click="showDeleteDialog = false">Cancelar</v-btn>
-          <v-btn color="error" @click="confirmDelete">Eliminar</v-btn>
+          <v-btn 
+            variant="outlined" 
+            @click="showDeleteDialog = false" 
+            :disabled="isDeleting"
+          >
+            Cancelar
+          </v-btn>
+          <v-btn 
+            color="error" 
+            @click="confirmDelete" 
+            :loading="isDeleting" 
+            :disabled="isDeleting"
+          >
+            Eliminar
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -490,12 +503,17 @@ export default defineComponent({
       }
     };
 
+    const isDeleting = ref(false);
+
     // Methods - Delete confirmation
     const confirmDelete = async () => {
       if (!itemToDelete.value) return;
 
       const { type, id } = itemToDelete.value;
       let success = false;
+      
+      // Activar el indicador de carga
+      isDeleting.value = true;
 
       try {
         switch (type) {
@@ -524,12 +542,18 @@ export default defineComponent({
             }
             break;
         }
+        
+        // Cerrar automáticamente el diálogo si la eliminación fue exitosa
+        if (success) {
+          showDeleteDialog.value = false;
+          itemToDelete.value = null;
+        }
       } catch (error) {
         console.error(`Error deleting ${type}:`, error);
         showNotification(`Error al eliminar ${type}`, 'error');
       } finally {
-        showDeleteDialog.value = false;
-        itemToDelete.value = null;
+        // Desactivar el indicador de carga
+        isDeleting.value = false;
       }
     };
 
@@ -618,7 +642,9 @@ export default defineComponent({
       // Methods - Notifications
       showNotification,
 
-      filtersConfig
+      filtersConfig,
+
+      isDeleting
     };
   }
 });
