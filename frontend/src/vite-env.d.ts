@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 
 declare module 'vuetify/styles' {
-  const styles: any
+  const styles: string
   export default styles
 }
 

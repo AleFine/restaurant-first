@@ -89,7 +89,7 @@ export default defineComponent({
         rules.email(form.value.correo) === true
     );
     const rules = {
-      required: (v: any) => !!v || 'Este campo es requerido',
+      required: (v: unknown) => !!v || 'Este campo es requerido',
       email: (v: string) =>
         !!v.match(/\S+@\S+\.\S+/) || 'Correo inválido'
     };

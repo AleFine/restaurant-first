@@ -91,8 +91,6 @@
           </v-col>
         </v-row>
         
-
-        
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
@@ -107,8 +105,6 @@
   <script lang="ts">
   import { defineComponent, ref, computed, watch } from 'vue';
   import type { Reserva, Comensal, Mesa } from '../../types';
-
-  
 
   export default defineComponent({
     name: 'ReservaForm',
@@ -208,7 +204,7 @@
       };
   
       const rules = {
-        required: (v: any) => !!v || 'Este campo es requerido',
+        required: (v: unknown) => !!v || 'Este campo es requerido',
         minValue: (min: number) => (v: number) => v >= min || `El valor debe ser mayor o igual a ${min}`,
         // Nueva regla para validar capacidad
         capacidadMesa: () => (v: number) => {
@@ -219,7 +215,7 @@
         },
 
         mesaDisponible: () => {
-          return (_: any) => {  // Using underscore to indicate intentionally unused parameter
+          return () => {
             if (!form.value.id_mesa || !form.value.fecha || !form.value.hora) return true;
             
             const idReserva = props.initialValue?.id_reserva;

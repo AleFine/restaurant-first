@@ -41,7 +41,7 @@ export interface Comensal {
 export interface FilterConfig {
   key: keyof FilterOptions;
   component: Component;
-  props: Record<string, any>;
+  props: Record<string, unknown>;
   sm?: number;
   visible?: boolean;
 }

@@ -1,5 +1,6 @@
 // src/services/reservaService.ts
 import api from './api';
+import { isAxiosError } from 'axios';
 import type { Reserva } from '../types';
 import { ReservaRequest } from '../requests/reservaRequest';
 
@@ -21,8 +22,12 @@ export const reservaService = {
       console.log('Enviando datos al servidor:', reserva);
       const response = await api.post('/reservas', reserva);
       return response.data;
-    } catch (error: any) {
-      console.error('Error detallado:', error.response?.data);
+    } catch (error: unknown) {
+      if (isAxiosError<unknown>(error)) {
+        console.error('Error detallado:', error.response?.data);
+      } else {
+        console.error('Error desconocido al enviar reserva:', error);
+      }
       throw error;
     }
   },
@@ -32,8 +37,12 @@ export const reservaService = {
       const request = new ReservaRequest(reserva);
       const response = await api.put(`/reservas/${id}`, request);
       return response.data;
-    } catch (error: any) {
-      console.error('Error detallado:', error.response?.data?.errors);
+    } catch (error: unknown) {
+      if (isAxiosError<{ errors: unknown }>(error)) {
+        console.error('Error detallado:', error.response?.data.errors);
+      } else {
+        console.error('Error desconocido al actualizar reserva:', error);
+      }
       throw error;
     }
   },

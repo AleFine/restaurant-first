@@ -60,7 +60,7 @@ export default defineComponent({
       props.filtersConfig.filter(config => config.visible !== false)
     );
 
-    const updateFilter = (key: keyof FilterOptions, value: any) => {
+    const updateFilter = (key: keyof FilterOptions, value: unknown) => {
       const updatedFilters = { ...props.filters, [key]: value };
       emit('update:filters', updatedFilters);
     };

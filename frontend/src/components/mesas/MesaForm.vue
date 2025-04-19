@@ -78,7 +78,7 @@ export default defineComponent({
     });
     const isEdit = computed(() => !!props.initialValue);
     const rules = {
-      required: (v: any) => (!!v || v === 0) || 'Este campo es requerido',
+      required: (v: unknown) => (!!v || v === 0) || 'Este campo es requerido',
       minValue: (min: number) => (v: number) => v >= min || `El valor debe ser >= ${min}`
     };
     const isFormValid = computed(
