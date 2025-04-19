@@ -55,7 +55,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed, watch } from 'vue';
-import type { Mesa } from '../types';
+import type { Mesa } from '../../types';
 
 export default defineComponent({
   name: 'MesaForm',

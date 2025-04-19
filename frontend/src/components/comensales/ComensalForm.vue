@@ -59,7 +59,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed, watch } from 'vue';
-import type { Comensal } from '../types';
+import type { Comensal } from '../../types';
 
 export default defineComponent({
   name: 'ComensalForm',
