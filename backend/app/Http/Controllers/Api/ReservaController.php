@@ -44,15 +44,6 @@ class ReservaController extends Controller
                         ->orWhere('numero_de_personas', '>=', $term);
             });
 
-            // ordenamiento
-            $sortField = $request->input('sort_by', 'fecha');
-            $sortDirection = $request->input('sort_dir', 'desc');
-            $allowedSortFields = ['fecha', 'hora', 'numero_de_personas'];
-            
-            if (in_array($sortField, $allowedSortFields)) {
-                $query->orderBy($sortField, $sortDirection === 'desc' ? 'desc' : 'asc');
-            }
-
             $reservas = $query->paginate($perPage)->appends($request->query());
             
             return ReservaResource::collection($reservas);
@@ -154,7 +145,7 @@ class ReservaController extends Controller
             
             $validated = $request->validate([
                 'fecha' => 'sometimes|date|after_or_equal:today',
-                'hora' => 'sometimes|date_format:H:i',
+                'hora' => 'sometimes|date_format:H:i:s',
                 'numero_de_personas' => 'sometimes|integer|min:1',
                 'id_comensal' => 'sometimes|exists:comensales,id_comensal',
                 'id_mesa' => 'sometimes|exists:mesas,id_mesa'

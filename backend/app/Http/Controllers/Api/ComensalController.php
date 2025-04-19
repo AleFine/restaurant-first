@@ -31,15 +31,6 @@ class ComensalController extends Controller
                          ->orWhere('telefono', 'LIKE', '%' . $request->searchTerm . '%');
             });
 
-            // ordenamiento por nombre y ascendente
-            $sortField = $request->input('sort_by', 'nombre');
-            $sortDirection = $request->input('sort_dir', 'asc');
-            $allowedSortFields = ['nombre', 'correo', 'telefono'];
-            
-            if (in_array($sortField, $allowedSortFields)) {
-                $query->orderBy($sortField, $sortDirection === 'desc' ? 'desc' : 'asc');
-            }
-
             $comensales = $query->paginate($perPage)->appends($request->query());
             
             return ComensalResource::collection($comensales);

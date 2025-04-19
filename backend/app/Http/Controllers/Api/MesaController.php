@@ -30,15 +30,6 @@ class MesaController extends Controller
                          ->orWhere('ubicacion', 'LIKE', "%{$term}%");
             });
 
-            // Ordenamiento
-            $sortField = $request->input('sort_by', 'numero_mesa');
-            $sortDirection = $request->input('sort_dir', 'asc');
-            $allowedSortFields = ['numero_mesa', 'capacidad', 'ubicacion'];
-            
-            if (in_array($sortField, $allowedSortFields)) {
-                $query->orderBy($sortField, $sortDirection === 'desc' ? 'desc' : 'asc');
-            }
-
             $mesas = $query->paginate($perPage)->appends($request->query());
             
             return MesaResource::collection($mesas);
