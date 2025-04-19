@@ -1,3 +1,4 @@
+.vscode
 mysql/data/
 /vendor/
 node_modules/
