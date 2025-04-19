@@ -1,4 +1,5 @@
 // src/types/index.ts
+import type { Component } from 'vue';
 export interface Comensal {
     id_comensal?: number;
     nombre: string;
@@ -36,7 +37,14 @@ export interface Comensal {
     itemsPerPage: number;
     totalItems: number;
   }
-  
+
+export interface FilterConfig {
+  key: keyof FilterOptions;
+  component: Component;
+  props: Record<string, any>;
+  sm?: number;
+  visible?: boolean;
+}
   export interface FilterOptions {
     searchTerm?: string;
     date?: string;

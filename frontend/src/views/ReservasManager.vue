@@ -29,6 +29,7 @@
       v-model="showFilters"
       :filters="activeTabFilters"
       :items-per-page="itemsPerPage"
+      :filters-config="filtersConfig"
       @update:filters="updateFilters"
       @update:items-per-page="updateItemsPerPage"
       @clear="clearFilters"
@@ -152,6 +153,42 @@ import ComensalForm from '../components/ComensalForm.vue';
 import MesaList from '../components/mesas/MesaList.vue';
 import MesaForm from '../components/MesaForm.vue';
 import type { Reserva, Comensal, Mesa, FilterOptions } from '../types';
+import type { FilterConfig } from '../types';
+import { markRaw } from 'vue';
+import { VTextField } from 'vuetify/components';
+
+const getFiltersConfig = (tab: string): FilterConfig[] => [
+  {
+    key: 'date',
+    component: markRaw(VTextField),
+    props: {
+      label: 'Fecha',
+      type: 'date',
+      prependInnerIcon: 'mdi-calendar'
+    },
+    visible: tab === 'reservas',
+    sm: 4
+  },
+  {
+    key: 'searchTerm',
+    component: markRaw(VTextField),
+    props: {
+      label: 'Buscar',
+      placeholder: getSearchPlaceholder(tab),
+      prependInnerIcon: 'mdi-magnify'
+    },
+    sm: 4
+  }
+];
+
+const getSearchPlaceholder = (tab: string) => {
+  const placeholders: Record<string, string> = {
+    reservas: 'Nombre, mesa, teléfono...',
+    comensales: 'Nombre, correo, teléfono...',
+    mesas: 'Número de mesa, ubicación...'
+  };
+  return placeholders[tab] || 'Buscar...';
+};
 
 export default defineComponent({
   name: 'ReservasManager',
@@ -164,7 +201,13 @@ export default defineComponent({
     MesaList,
     MesaForm
   },
+
   setup() {
+    
+    const filtersConfig = computed(() => 
+      getFiltersConfig(activeTab.value)
+    );
+
     // Stores
     const reservaStore = useReservaStore();
     const comensalStore = useComensalStore(); 
@@ -321,6 +364,8 @@ export default defineComponent({
       showReservaDialog.value = false;
       selectedReserva.value = null;
     };
+
+    
 
     const saveReserva = async (reserva: Partial<Reserva>) => {
       try {
@@ -571,7 +616,9 @@ export default defineComponent({
       confirmDelete,
       
       // Methods - Notifications
-      showNotification
+      showNotification,
+
+      filtersConfig
     };
   }
 });
