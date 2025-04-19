@@ -23,17 +23,11 @@ class MesaController extends Controller
             $perPage = $request->input('per_page', 15);
             $query = Mesa::query();
 
-            // Filtros
-            $query->when($request->filled('numero_mesa'), function ($q) use ($request) {
-                return $q->where('numero_mesa', 'LIKE', '%' . $request->numero_mesa . '%');
-            });
-            
-            $query->when($request->filled('capacidad'), function ($q) use ($request) {
-                return $q->where('capacidad', $request->capacidad);
-            });
-            
-            $query->when($request->filled('ubicacion'), function ($q) use ($request) {
-                return $q->where('ubicacion', 'LIKE', '%' . $request->ubicacion . '%');
+            // Filtro genérico por searchTerm
+            $query->when($request->filled('searchTerm'), function ($q) use ($request) {
+                $term = $request->searchTerm;
+                return $q->where('numero_mesa', 'LIKE', "%{$term}%")
+                         ->orWhere('ubicacion', 'LIKE', "%{$term}%");
             });
 
             // Ordenamiento

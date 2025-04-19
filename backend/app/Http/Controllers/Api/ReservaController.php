@@ -26,21 +26,22 @@ class ReservaController extends Controller
             $perPage = $request->input('per_page', 15);
             $query = Reserva::with(['comensal', 'mesa']);
 
-            // filtros
-            $query->when($request->filled('fecha'), function ($q) use ($request) {
-                return $q->whereDate('fecha', $request->fecha);
+            // Filtro por fecha enviado como 'date'
+            $query->when($request->filled('date'), function ($q) use ($request) {
+                return $q->whereDate('fecha', $request->date);
             });
-            
-            $query->when($request->filled('id_comensal'), function ($q) use ($request) {
-                return $q->where('id_comensal', $request->id_comensal);
-            });
-            
-            $query->when($request->filled('id_mesa'), function ($q) use ($request) {
-                return $q->where('id_mesa', $request->id_mesa);
-            });
-            
-            $query->when($request->filled('personas'), function ($q) use ($request) {
-                return $q->where('numero_de_personas', '>=', $request->personas);
+            // Filtro genérico por término de búsqueda: comensal, mesa o número personas
+            $query->when($request->filled('searchTerm'), function ($q) use ($request) {
+                $term = $request->searchTerm;
+                return $q->whereHas('comensal', function ($q2) use ($term) {
+                            $q2->where('nombre', 'LIKE', "%{$term}%")
+                                ->orWhere('telefono', 'LIKE', "%{$term}%")
+                                ->orWhere('correo', 'LIKE', "%{$term}%");
+                        })
+                        ->orWhereHas('mesa', function ($q3) use ($term) {
+                            $q3->where('numero_mesa', 'LIKE', "%{$term}%");
+                        })
+                        ->orWhere('numero_de_personas', '>=', $term);
             });
 
             // ordenamiento

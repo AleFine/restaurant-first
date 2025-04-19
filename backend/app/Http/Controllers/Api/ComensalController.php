@@ -24,21 +24,13 @@ class ComensalController extends Controller
             $perPage = $request->input('per_page', 15); 
             $query = Comensal::query();
 
-            // filtro por nombre ya sea parcial o exacto
-            $query->when($request->filled('nombre'), function ($q) use ($request) {
-                return $q->where('nombre', 'LIKE', '%' . $request->nombre . '%');
+            // filtro genérico por término de búsqueda
+            $query->when($request->filled('searchTerm'), function ($q) use ($request) {
+                return $q->where('nombre', 'LIKE', '%' . $request->searchTerm . '%')
+                         ->orWhere('correo', 'LIKE', '%' . $request->searchTerm . '%')
+                         ->orWhere('telefono', 'LIKE', '%' . $request->searchTerm . '%');
             });
-            
-            // filtro por correo ya sea parcial o exacto
-            $query->when($request->filled('correo'), function ($q) use ($request) {
-                return $q->where('correo', 'LIKE', '%' . $request->correo . '%');
-            });
-            
-            // filtro por telefono ya sea parcial o exacto
-            $query->when($request->filled('telefono'), function ($q) use ($request) {
-                return $q->where('telefono', 'LIKE', '%' . $request->telefono . '%');
-            });
-            
+
             // ordenamiento por nombre y ascendente
             $sortField = $request->input('sort_by', 'nombre');
             $sortDirection = $request->input('sort_dir', 'asc');
