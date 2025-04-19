@@ -153,9 +153,9 @@ import FilterPanel from '../components/common/FilterPanel.vue';
 import ReservaList from '../components/reservas/ReservaList.vue';
 import ReservaForm from '../components/reservas/ReservaForm.vue';
 import ComensalList from '../components/comensales/ComensalList.vue';
-import ComensalForm from '../components/comensales/ComensalForm.vue';
+import ComensalForm from '../components/ComensalForm.vue';
 import MesaList from '../components/mesas/MesaList.vue';
-import MesaForm from '../components/mesas/MesaForm.vue';
+import MesaForm from '../components/MesaForm.vue';
 import type { Reserva, Comensal, Mesa, FilterOptions } from '../types';
 
 export default defineComponent({
