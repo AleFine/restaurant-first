@@ -26,9 +26,13 @@ class ReservaFactory extends Factory
         return [
             'fecha' => $this->faker->dateTimeBetween('now', '+30 days')->format('Y-m-d'),
             'hora' => $this->faker->time('H:i:00'),
-            'numero_de_personas' => $this->faker->numberBetween(1, 8),
-            'id_comensal' => Comensal::factory(),
-            'id_mesa' => Mesa::factory(),
+            'numero_de_personas' => $this->faker->numberBetween(1, 4),
+            'id_comensal' => function () {
+                return Comensal::factory()->create()->id_comensal;
+            },
+            'id_mesa' => function () {
+                return Mesa::factory()->create()->id_mesa;
+            },
         ];
     }
 }

@@ -15,7 +15,15 @@ use Exception;
 class ComensalController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Obtiene una lista paginada de comensales con opción de búsqueda
+     * 
+     * @param Request $request Solicitud HTTP
+     * @return \Illuminate\Http\JsonResponse|ComensalResource
+     * 
+     * @throws \Exception Error genérico (500)
+     * 
+     * @queryParam per_page integer Cantidad de elementos por página. Ejemplo: 15
+     * @queryParam searchTerm string Término para buscar en nombre, correo o teléfono. Ejemplo: "Juan"
      */
     public function index(Request $request)
     {
@@ -43,7 +51,19 @@ class ComensalController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Crea un nuevo comensal en el sistema
+     * 
+     * @param Request $request Solicitud HTTP con datos del comensal
+     * @return \Illuminate\Http\JsonResponse|ComensalResource
+     * 
+     * @throws ValidationException Validación fallida (422)
+     * @throws QueryException Error de base de datos (500 o 409)
+     * @throws \Exception Error genérico (500)
+     * 
+     * @bodyParam nombre string required Nombre del comensal. Ejemplo: "Juan Pérez"
+     * @bodyParam correo string required Email único. Ejemplo: "juan@example.com"
+     * @bodyParam telefono string nullable Teléfono. Ejemplo: "+5491123456789"
+     * @bodyParam direccion string nullable Dirección. Ejemplo: "Calle Falsa 123"
      */
     public function store(Request $request)
     {
@@ -89,7 +109,13 @@ class ComensalController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Muestra los detalles de un comensal específico
+     * 
+     * @param int $id ID único del comensal
+     * @return \Illuminate\Http\JsonResponse|ComensalResource
+     * 
+     * @throws ModelNotFoundException Comensal no encontrado (404)
+     * @throws \Exception Error genérico (500)
      */
     public function show($id)
     {
@@ -109,7 +135,21 @@ class ComensalController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Actualiza los datos de un comensal existente
+     * 
+     * @param Request $request Solicitud HTTP con datos a actualizar
+     * @param int $id ID único del comensal a actualizar
+     * @return \Illuminate\Http\JsonResponse|ComensalResource
+     * 
+     * @throws ModelNotFoundException Comensal no encontrado (404)
+     * @throws ValidationException Validación fallida (422)
+     * @throws QueryException Error de base de datos (500 o 409)
+     * @throws \Exception Error genérico (500)
+     * 
+     * @bodyParam nombre string Nombre del comensal. Ejemplo: "Juan Pérez Actualizado"
+     * @bodyParam correo string Email único (ignorando el actual). Ejemplo: "nuevo@email.com"
+     * @bodyParam telefono string Teléfono. Ejemplo: "+5491187654321"
+     * @bodyParam direccion string Dirección. Ejemplo: "Nueva Dirección 456"
      */
     public function update(Request $request, $id)
     {
@@ -159,12 +199,25 @@ class ComensalController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Elimina un comensal del sistema
+     * 
+     * @param int $id ID único del comensal a eliminar
+     * @return \Illuminate\Http\JsonResponse
+     * 
+     * @throws ModelNotFoundException Comensal no encontrado (404)
+     * @throws \Exception Error genérico (500) o conflicto con reservas (409)
      */
     public function destroy($id)
     {
         try {
             $comensal = Comensal::findOrFail($id);
+            
+            if($comensal->reservas()->exists()) {
+                return response()->json([
+                    'message' => 'No se puede eliminar el comensal porque tiene reservas asociadas'
+                ], Response::HTTP_CONFLICT);
+            }
+            
             $comensal->delete();
             
             return response()->json([
@@ -175,18 +228,6 @@ class ComensalController extends Controller
             return response()->json([
                 'message' => 'Comensal no encontrado'
             ], Response::HTTP_NOT_FOUND);
-        } catch (QueryException $e) {
-            // si hay referencias a este comensal en otras tablas
-            if ($e->errorInfo[1] == 1451) { // este es el codigo mysql para restricciones de clave foránea
-                return response()->json([
-                    'message' => 'No se puede eliminar el comensal porque tiene registros relacionados'
-                ], Response::HTTP_CONFLICT);
-            }
-            
-            return response()->json([
-                'message' => 'Error al eliminar el comensal',
-                'error' => $e->getMessage()
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         } catch (Exception $e) {
             return response()->json([
                 'message' => 'Error al eliminar el comensal',

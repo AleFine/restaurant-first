@@ -16,8 +16,8 @@ return new class extends Migration
             $table->date('fecha');
             $table->time('hora');
             $table->integer('numero_de_personas');
-            $table->foreignId('id_comensal')->references('id_comensal')->on('comensales')->onDelete('cascade');
-            $table->foreignId('id_mesa')->references('id_mesa')->on('mesas')->onDelete('cascade');
+            $table->foreignId('id_comensal')->references('id_comensal')->on('comensales')->onDelete('RESTRICT');
+            $table->foreignId('id_mesa')->references('id_mesa')->on('mesas')->onDelete('RESTRICT');
         });
     }
 

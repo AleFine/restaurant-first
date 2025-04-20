@@ -160,6 +160,14 @@ class MesaController extends Controller
     {
         try {
             $mesa = Mesa::findOrFail($id);
+            
+            // Verificar si tiene reservas primero
+            if ($mesa->reservas->count() > 0) {
+                return response()->json([
+                    'message' => 'No se puede eliminar la mesa porque tiene reservas asociadas'
+                ], Response::HTTP_CONFLICT);
+            }
+            
             $mesa->delete();
             
             return response()->json([
@@ -171,7 +179,8 @@ class MesaController extends Controller
                 'message' => 'Mesa no encontrada'
             ], Response::HTTP_NOT_FOUND);
         } catch (QueryException $e) {
-            if ($e->errorInfo[1] == 1451) {
+            // A veces la verificación anterior puede fallar si la relación no está cargada
+            if ($e->errorInfo[1] == 1451) {  // Código MySQL para restricción de clave externa
                 return response()->json([
                     'message' => 'No se puede eliminar la mesa porque tiene reservas asociadas'
                 ], Response::HTTP_CONFLICT);

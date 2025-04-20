@@ -85,7 +85,7 @@ class ReservaController extends Controller
             // validación de reserva existente
             $existingReservation = Reserva::where('id_mesa', $validated['id_mesa'])
                 ->whereDate('fecha', $validated['fecha'])
-                ->whereTime('hora', '=', $validated['hora'])
+                ->where('hora', '=', $validated['hora'])
                 ->exists();
 
             if($existingReservation) {
