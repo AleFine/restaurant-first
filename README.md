@@ -75,29 +75,83 @@ npm run dev
 
 ## Estructura del Proyecto
 
+### Backend (Laravel)
 ```
-sistema-reservas-restaurante/
-├── backend/                  # Código del backend Laravel
-│   ├── app/
-│   │   ├── Http/Controllers/ # Controladores para comensales, mesas y reservas
-│   │   ├── Models/           # Modelos para comensales, mesas y reservas
-│   │   └── Resources/        # Recursos API para transformación de datos
-│   ├── database/
-│   │   ├── migrations/       # Migraciones para crear las tablas
-│   │   └── seeders/         # Seeders para datos de prueba
-│   └── routes/
-│       └── api.php          # Definición de rutas API
-├── frontend/                 # Código del frontend Vue.js
-│   ├── src/
-│   │   ├── components/       # Componentes Vue
-│   │   ├── views/            # Vistas de la aplicación
-│   │   └── services/         # Servicios para comunicación con API
-│   └── package.json          # Dependencias del frontend
-├── docker/                   # Configuración de Docker
-│   ├── dockerfiles/          # Archivos Dockerfile
-│   └── nginx/                # Configuración de Nginx
-└── docker-compose.yml        # Definición de servicios Docker
+backend/
+├── app/
+│   ├── Http/Controllers/ # Controladores para comensales, mesas y reservas
+│   ├── Models/           # Modelos para comensales, mesas y reservas
+│   └── Resources/        # Recursos API para transformación de datos
+├── database/
+│   ├── migrations/       # Migraciones para crear las tablas
+│   └── seeders/         # Seeders para datos de prueba
+└── routes/
+    └── api.php          # Definición de rutas API
 ```
+
+### Frontend (Vue.js + TypeScript)
+```
+frontend/
+├── components/
+│   ├── comensales/      # Componentes relacionados con comensales
+│   ├── common/          # Componentes comunes reutilizables
+│   ├── mesas/           # Componentes relacionados con mesas
+│   └── reservas/        # Componentes relacionados con reservas
+├── composables/
+│   └── usePagination.ts # Composable para manejar la paginación
+├── requests/
+│   └── reservaRequest.ts # Objetos de request para validación
+├── router/
+│   └── index.ts         # Configuración de rutas de Vue Router
+├── services/
+│   ├── api.ts           # Servicio base para API
+│   ├── comensalService.ts # Servicio para gestionar comensales
+│   ├── mesaService.ts   # Servicio para gestionar mesas
+│   └── reservaService.ts # Servicio para gestionar reservas
+├── stores/
+│   ├── comensalStore.ts # Store para estado de comensales (Pinia)
+│   ├── mesaStore.ts     # Store para estado de mesas (Pinia)
+│   └── reservaStore.ts  # Store para estado de reservas (Pinia)
+├── transformers/
+│   └── reservaTransformer.ts # Transformación de datos
+├── types/
+│   └── index.ts         # Definiciones de tipos TypeScript
+├── views/
+│   └── ReservasManager.vue # Vista principal de gestión
+├── App.vue              # Componente raíz
+├── main.ts              # Punto de entrada de la aplicación
+└── style.css            # Estilos globales
+```
+
+### Docker
+```
+docker/
+├── dockerfiles/         # Archivos Dockerfile
+└── nginx/               # Configuración de Nginx
+```
+
+## Tecnologías Utilizadas
+
+### Frontend
+- Vue.js 3 con Composition API
+- TypeScript
+- Vue Router para navegación
+- Pinia para gestión de estado
+- Vite como bundler y servidor de desarrollo
+- Patrón de servicios para comunicación con API
+- Transformers para formateo de datos
+
+### Backend
+- Laravel 10
+- Eloquent ORM
+- API Resources para transformación de respuestas
+- Migraciones y Seeders para gestión de base de datos
+
+### Infraestructura
+- Docker y Docker Compose
+- Nginx como servidor web
+- MySQL como base de datos
+- PHP-FPM para procesamiento PHP
 
 ## Acceso a la Aplicación
 
@@ -266,7 +320,31 @@ docker-compose run --rm artisan cache:clear
 # Compilar para producción
 cd frontend
 npm run build
+
+# Verificar tipos TypeScript
+npm run type-check
+
+# Ejecutar linter
+npm run lint
+
+# Ejecutar pruebas unitarias (si están configuradas)
+npm run test
 ```
+
+## Flujo de Trabajo de Desarrollo
+
+### Frontend
+1. Los componentes se organizan por entidad (comensales, mesas, reservas)
+2. Los servicios manejan la comunicación con la API backend
+3. Los stores (Pinia) gestionan el estado global de la aplicación
+4. Los transformers formatean los datos para su uso en la UI
+5. El composable `usePagination` facilita la implementación de paginación en listados
+
+### Backend
+1. Los controladores gestionan las peticiones HTTP
+2. Los modelos Eloquent definen la estructura de datos y relaciones
+3. Los Resources transforman los datos para las respuestas API
+4. Las migraciones definen la estructura de la base de datos
 
 ## Solución de Problemas Comunes
 
@@ -285,6 +363,28 @@ Verifique que:
 1. El servicio MySQL esté funcionando (`docker-compose ps`)
 2. Las credenciales en el archivo `.env` coincidan con las del `docker-compose.yml`
 3. La base de datos haya sido creada correctamente
+
+### Problemas con el frontend
+
+Si tiene problemas con el frontend:
+
+```bash
+# Limpiar caché de npm
+npm cache clean --force
+
+# Reinstalar dependencias
+rm -rf node_modules
+npm install
+```
+
+### Problemas con TypeScript
+
+Si encuentra errores de tipo en TypeScript:
+
+```bash
+# Verificar errores de tipo
+npm run type-check
+```
 
 ## Contribuciones
 

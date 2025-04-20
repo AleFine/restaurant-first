@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('numero_mesa')->unique();
             $table->integer('capacidad');
             $table->string('ubicacion')->nullable();
-            $table->timestamps();
         });
     }
 

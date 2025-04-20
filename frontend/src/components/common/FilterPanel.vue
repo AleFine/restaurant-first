@@ -15,7 +15,13 @@
           </v-col>
         </template>
 
-        <!-- Items per Page -->
+        <!-- Clear Button -->
+        <v-col cols="12" sm="2" class="d-flex align-center">
+          <v-btn variant="text" @click="$emit('clear')">
+            <v-icon size="small" class="mr-2">mdi-close</v-icon>
+            Limpiar Busqueda
+          </v-btn>
+        </v-col>
         <v-col cols="12" sm="2">
           <v-select
             :model-value="itemsPerPage"
@@ -24,14 +30,7 @@
             @update:model-value="$emit('update:itemsPerPage', $event)"
           ></v-select>
         </v-col>
-        
-        <!-- Clear Button -->
-        <v-col cols="12" sm="2" class="d-flex align-center">
-          <v-btn variant="text" @click="$emit('clear')">
-            <v-icon size="small" class="mr-2">mdi-close</v-icon>
-            Limpiar
-          </v-btn>
-        </v-col>
+
       </v-row>
     </v-card-text>
   </v-card>
