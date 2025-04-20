@@ -18,7 +18,16 @@ use Carbon\Carbon;
 class ReservaController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Obtiene listado paginado de reservas con filtros
+     * 
+     * @param Request $request Solicitud HTTP
+     * @return \Illuminate\Http\JsonResponse|ReservaResource
+     * 
+     * @throws \Exception Error genérico (500)
+     * 
+     * @queryParam per_page integer Cantidad de elementos por página. Ejemplo: 15
+     * @queryParam date string Filtro por fecha (formato Y-m-d). Ejemplo: "2024-03-01"
+     * @queryParam searchTerm string Búsqueda en comensal, mesa o número de personas. Ejemplo: "Juan"
      */
     public function index(Request $request)
     {
@@ -61,7 +70,20 @@ class ReservaController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Crea una nueva reserva
+     * 
+     * @param Request $request Solicitud HTTP con datos de reserva
+     * @return \Illuminate\Http\JsonResponse|ReservaResource
+     * 
+     * @throws ValidationException Validación fallida (422)
+     * @throws QueryException Error de base de datos (409 o 500)
+     * @throws \Exception Error genérico (500)
+     * 
+     * @bodyParam fecha date required Fecha futura (formato Y-m-d). Ejemplo: "2024-03-15"
+     * @bodyParam hora time required Hora (formato H:i). Ejemplo: "20:00"
+     * @bodyParam numero_de_personas integer required Mínimo 1. Ejemplo: 4
+     * @bodyParam id_comensal integer required ID de comensal existente. Ejemplo: 1
+     * @bodyParam id_mesa integer required ID de mesa existente. Ejemplo: 5
      */
     public function store(Request $request)
     {
@@ -121,7 +143,13 @@ class ReservaController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Muestra detalles de una reserva específica
+     * 
+     * @param int $id ID único de la reserva
+     * @return \Illuminate\Http\JsonResponse|ReservaResource
+     * 
+     * @throws ModelNotFoundException Reserva no encontrada (404)
+     * @throws \Exception Error genérico (500)
      */
     public function show($id)
     {
@@ -141,7 +169,22 @@ class ReservaController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Actualiza una reserva existente
+     * 
+     * @param Request $request Solicitud HTTP con datos a actualizar
+     * @param int $id ID único de la reserva
+     * @return \Illuminate\Http\JsonResponse|ReservaResource
+     * 
+     * @throws ModelNotFoundException Reserva no encontrada (404)
+     * @throws ValidationException Validación fallida (422)
+     * @throws QueryException Error de base de datos (409 o 500)
+     * @throws \Exception Error genérico (500)
+     * 
+     * @bodyParam fecha date Fecha futura (formato Y-m-d). Ejemplo: "2024-03-16"
+     * @bodyParam hora time Hora (formato H:i:s). Ejemplo: "20:30:00"
+     * @bodyParam numero_de_personas integer Mínimo 1. Ejemplo: 5
+     * @bodyParam id_comensal integer ID de comensal existente. Ejemplo: 2
+     * @bodyParam id_mesa integer ID de mesa existente. Ejemplo: 6
      */
     public function update(Request $request, $id)
     {
@@ -215,7 +258,13 @@ class ReservaController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Elimina una reserva
+     * 
+     * @param int $id ID único de la reserva
+     * @return \Illuminate\Http\JsonResponse
+     * 
+     * @throws ModelNotFoundException Reserva no encontrada (404)
+     * @throws \Exception Error genérico (500)
      */
     public function destroy($id)
     {

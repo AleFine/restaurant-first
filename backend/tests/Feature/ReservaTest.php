@@ -84,7 +84,7 @@ class ReservaTest extends TestCase
             'hora' => $hora
         ]);
         
-        // se intenta crear reserva duplicada
+        // reserva duplicada
         $response = $this->postJson('/api/reservas', [
             'fecha' => $fechaValida,
             'hora' => $hora,
