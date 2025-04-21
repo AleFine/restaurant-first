@@ -32,7 +32,7 @@ class ComensalController extends Controller
             $perPage = $request->input('per_page', 15); 
             $query = Comensal::query();
 
-            // filtro genérico por término de búsqueda
+            // filtro genérico por un término de búsqueda
             $query->when($request->filled('searchTerm'), function ($q) use ($request) {
                 return $q->where('nombre', 'LIKE', '%' . $request->searchTerm . '%')
                          ->orWhere('correo', 'LIKE', '%' . $request->searchTerm . '%')
