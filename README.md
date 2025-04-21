@@ -1,14 +1,3 @@
-1. **Configuración inicial** (#1)
-   - Commit: `feat(init): configuración inicial del proyecto Laravel`
-   
-2. **Integración Vue.js** (#2)
-   - Commit: `feat(vue): integración de Vue.js con Laravel`
-
-3. **Gestión de Comensales** (#3, #4, #5)
-   - Modelo: `feat(models): creación de modelo y migración para Comensales`
-   - API: `feat(api): endpoints CRUD para Comensales`
-   - UI: `feat(ui): componente Vue.js para listar Comensales`
-
 # Sistema de Reservas de Restaurante
 
 Un sistema básico de reservas para restaurantes con un CRUD para administrar comensales, mesas y reservas. Desarrollado con Vue.js (TypeScript) en el frontend y Laravel en el backend, con el backend contenido en docker.
@@ -52,7 +41,7 @@ cd sistema-reservas-restaurante
 ### 2. Iniciar los contenedores Docker
 
 ```bash
-docker-compose up -d
+docker-compose up -d --build
 ```
 
 Este comando iniciará los siguientes servicios:
@@ -80,7 +69,7 @@ copy .\docker\mysql\.env.example .\docker\mysql\.env
 # Los .env ya están configurados con credenciales de muestra, 
 # no es necesario editarlos a menos que se tenga 
 # el puerto 3306 de Mysql ocupado (si fuera el caso, tambien
-# se tendría que editar el docker-compose.yml).
+# edite el docker-compose.yml).
 
 # Ejecutar migraciones
 docker-compose run --rm artisan migrate
@@ -88,6 +77,9 @@ docker-compose run --rm artisan migrate
 # Para poblar la base de datos con datos falsos.
 docker-compose run --rm artisan db:seed
 ```
+>Nota: Para ejecutar cualquier comando **artisan** o **composer** dentro del proyecto
+
+>asegurese de hacerlo con `docker-compose run --rm artisan/composer...`
 
 ### 4. Configurar el Frontend (Vue.js)
 
@@ -101,6 +93,38 @@ npm install
 # Iniciar servidor de desarrollo
 npm run dev
 ```
+
+## Acceso a la Aplicación
+
+- **Frontend**: Acceda a la aplicación en [http://localhost:5173](http://localhost:5173) (por defecto)
+- **Documentación de la API**: Detalles sobre los API endpoints disponibles en [http://localhost:8080/api/documentation](http://localhost:8080/api/documentation)
+- **phpMyAdmin**: Gestión de base de datos en [http://localhost:8090](http://localhost:8090)
+
+## Tecnologías Utilizadas
+
+### Frontend
+- Vue.js 3 con Composition API
+- Vuetify como framework de componentes Vue
+- TypeScript
+- Vue Router para navegación
+- Pinia para gestión de estado
+- Vite como bundler y servidor de desarrollo
+- Patrón de servicios para comunicación con API
+- ESLint como linter para detección de errores
+
+### Backend
+- Laravel 12
+- Eloquent ORM
+- API Resources para transformación de respuestas
+- Migraciones y Seeders para gestión de base de datos
+- PHPUnit y Factories para asegurar las pruebas unitarias
+- Documentación de la API RESTful con Swagger y comentarios con estandar PHPDoc
+
+### Infraestructura
+- Docker y Docker Compose
+- Nginx como servidor web
+- MySQL como base de datos
+- PHP-FPM para procesamiento PHP
 
 ## Estructura del Proyecto
 
@@ -126,21 +150,21 @@ backend/
 ```
 frontend/
 ├── components/
-│   ├── comensales/      # Componentes relacionados con comensales
-│   ├── common/          # Componentes comunes reutilizables
-│   ├── mesas/           # Componentes relacionados con mesas
-│   └── reservas/        # Componentes relacionados con reservas
+│   ├── comensales/      # Formulario (Modal) y Tabla para comensales.
+│   ├── common/          # Componentes reutilizables (FilterPanel)   
+│   ├── mesas/           # Formulario (Modal) y Tabla para mesas.
+│   └── reservas/        # Formulario (Modal) y Tabla para reservas.
 ├── composables/
-│   └── usePagination.ts # Composable para manejar la paginación
+│   └── usePagination.ts  # Composable para manejar la paginación
 ├── requests/
-│   └── reservaRequest.ts # Objetos de request para validación
+│   └── reservaRequest.ts # Objetos de request para asegurar su formato 
 ├── router/
-│   └── index.ts         # Configuración de rutas de Vue Router
+│   └── index.ts          # Configuración de rutas de Vue Router
 ├── services/
-│   ├── api.ts           # Instancia de Axios para las peticiones HTTP
+│   ├── api.ts             # Instancia de Axios para las peticiones HTTP
 │   ├── comensalService.ts # Servicio para gestionar peticiones de comensales
-│   ├── mesaService.ts   # Servicio para gestionar peticiones de mesas
-│   └── reservaService.ts # Servicio para gestionar peticiones de reservas
+│   ├── mesaService.ts     # Servicio para gestionar peticiones de mesas
+│   └── reservaService.ts  # Servicio para gestionar peticiones de reservas
 ├── stores/
 │   ├── comensalStore.ts # Store para estado de comensales (Pinia)
 │   ├── mesaStore.ts     # Store para estado de mesas (Pinia)
@@ -148,7 +172,7 @@ frontend/
 ├── types/
 │   └── index.ts         # Definiciones de tipos TypeScript
 ├── views/
-│   └── ReservasManager.vue # Vista principal de gestión
+│   └── ReservasManager.vue # Vista principal del gestor de reservas
 ├── App.vue              # Componente raíz
 ├── main.ts              # Punto de entrada de la aplicación
 └── style.css            # Estilos globales
@@ -161,154 +185,58 @@ docker/
 ├── mysql/               # Almacenamiento de la database
 └── nginx/               # Configuración de Nginx
 ```
+---
 
-## Tecnologías Utilizadas
+## Estructura de Tablas
+![DATABASE](https://drive.google.com/uc?export=view&id=1x4FCQfYnzlB2Fga4tlnmBBrJB03xLEPa)
+---
 
-### Frontend
-- Vue.js 3 con Composition API
-- TypeScript
-- Vue Router para navegación
-- Pinia para gestión de estado
-- Vite como bundler y servidor de desarrollo
-- Patrón de servicios para comunicación con API
+### 1. Comensales (`comensales`)
 
-### Backend
-- Laravel 12
-- Eloquent ORM
-- API Resources para transformación de respuestas
-- Migraciones y Seeders para gestión de base de datos
-- PHPUnit y Factories para asegurar las pruebas unitarias
+Contiene los datos personales de los clientes que realizan reservas.
 
-### Infraestructura
-- Docker y Docker Compose
-- Nginx como servidor web
-- MySQL como base de datos
-- PHP-FPM para procesamiento PHP
+| Campo        | Tipo         | Migración (Laravel)                      | Descripción                           |
+|--------------|--------------|------------------------------------------|----------------------------------------|
+| `id_comensal`| BIGINT (PK)  | `$table->id('id_comensal');`            | Identificador único del comensal.     |
+| `nombre`     | VARCHAR(255) | `$table->string('nombre');`             | Nombre completo del comensal.         |
+| `correo`     | VARCHAR(255) | `$table->string('correo')->unique();`   | Correo electrónico.                   |
+| `telefono`   | VARCHAR(255) | `$table->string('telefono')->nullable();`| Número de contacto.                  |
+| `direccion`  | VARCHAR(255) | `$table->string('direccion')->nullable();`| Dirección del comensal.             |
 
-## Acceso a la Aplicación
+---
 
-- **Frontend**: Acceda a la aplicación en [http://localhost:8080](http://localhost:8080)
-- **API Backend**: Las rutas API están disponibles en [http://localhost:8080/api](http://localhost:8080/api)
-- **phpMyAdmin**: Gestión de base de datos en [http://localhost:8090](http://localhost:8090)
+### 2. Reservas (`reservas`)
 
-## API Reference
+Registra las reservas realizadas por los comensales.
 
-### Comensales
+| Campo                | Tipo         | Migración (Laravel)                                                                 | Descripción                                 |
+|----------------------|--------------|--------------------------------------------------------------------------------------|----------------------------------------------|
+| `id_reserva`         | BIGINT (PK)  | `$table->id('id_reserva');`                                                         | Identificador único de la reserva.          |
+| `fecha`              | DATE         | `$table->date('fecha');`                                                             | Fecha de la reserva.                        |
+| `hora`               | TIME         | `$table->time('hora');`                                                              | Hora de la reserva.                         |
+| `numero_de_personas` | INT          | `$table->integer('numero_de_personas');`                                             | Número de personas que asistirán.           |
+| `id_comensal`        | BIGINT (FK)  | `$table->foreignId('id_comensal')->references('id_comensal')->on('comensales')->onDelete('RESTRICT');` | ID del comensal que realiza la reserva.     |
+| `id_mesa`            | BIGINT (FK)  | `$table->foreignId('id_mesa')->references('id_mesa')->on('mesas')->onDelete('RESTRICT');`              | ID de la mesa reservada.                    |
 
-#### Obtener todos los comensales
+---
 
-```http
-GET /api/comensales
-```
+### 3. Mesas (`mesas`)
 
-#### Obtener un comensal
+Define las mesas disponibles en el restaurante.
 
-```http
-GET /api/comensales/{id}
-```
+| Campo         | Tipo         | Migración (Laravel)                                 | Descripción                                |
+|---------------|--------------|-----------------------------------------------------|---------------------------------------------|
+| `id_mesa`     | BIGINT (PK)  | `$table->id('id_mesa');`                           | Identificador único de la mesa.            |
+| `numero_mesa` | VARCHAR(255) | `$table->string('numero_mesa')->unique();`         | Código o número identificador de la mesa.  |
+| `capacidad`   | INT          | `$table->integer('capacidad');`                    | Número máximo de personas que soporta.     |
+| `ubicacion`   | VARCHAR(255) | `$table->string('ubicacion')->nullable();`         | Ubicación dentro del restaurante.          |
 
-#### Crear un comensal
+---
 
-```http
-POST /api/comensales
-```
+## Relaciones entre Tablas
 
-| Parámetro | Tipo     | Descripción                |
-| :-------- | :------- | :------------------------- |
-| `nombre`  | `string` | **Requerido**. Nombre del comensal |
-| `email`   | `string` | **Requerido**. Email del comensal |
-| `telefono`| `string` | **Requerido**. Teléfono de contacto |
-
-#### Actualizar un comensal
-
-```http
-PUT /api/comensales/{id}
-```
-
-#### Eliminar un comensal
-
-```http
-DELETE /api/comensales/{id}
-```
-
-### Mesas
-
-#### Obtener todas las mesas
-
-```http
-GET /api/mesas
-```
-
-#### Obtener una mesa
-
-```http
-GET /api/mesas/{id}
-```
-
-#### Crear una mesa
-
-```http
-POST /api/mesas
-```
-
-| Parámetro | Tipo     | Descripción                |
-| :-------- | :------- | :------------------------- |
-| `numero`  | `integer`| **Requerido**. Número de la mesa |
-| `capacidad`| `integer`| **Requerido**. Capacidad de comensales |
-| `ubicacion`| `string`| Ubicación de la mesa en el restaurante |
-
-#### Actualizar una mesa
-
-```http
-PUT /api/mesas/{id}
-```
-
-#### Eliminar una mesa
-
-```http
-DELETE /api/mesas/{id}
-```
-
-### Reservas
-
-#### Obtener todas las reservas
-
-```http
-GET /api/reservas
-```
-
-#### Obtener una reserva
-
-```http
-GET /api/reservas/{id}
-```
-
-#### Crear una reserva
-
-```http
-POST /api/reservas
-```
-
-| Parámetro | Tipo     | Descripción                |
-| :-------- | :------- | :------------------------- |
-| `comensal_id`| `integer`| **Requerido**. ID del comensal |
-| `mesa_id`| `integer`| **Requerido**. ID de la mesa |
-| `fecha`| `date`| **Requerido**. Fecha de la reserva (YYYY-MM-DD) |
-| `hora`| `time`| **Requerido**. Hora de la reserva (HH:MM) |
-| `num_personas`| `integer`| **Requerido**. Número de personas |
-| `observaciones`| `string`| Observaciones adicionales |
-
-#### Actualizar una reserva
-
-```http
-PUT /api/reservas/{id}
-```
-
-#### Eliminar una reserva
-
-```http
-DELETE /api/reservas/{id}
-```
+- Un **comensal** puede realizar múltiples **reservas** (Relación 1:N).
+- Una **mesa** puede estar asociada a múltiples **reservas** (Relación 1:N).
 
 ## Comandos Útiles
 
@@ -340,6 +268,9 @@ docker-compose run --rm artisan migrate:rollback
 # Recrear la base de datos
 docker-compose run --rm artisan migrate:fresh --seed
 
+# Ejecutar pruebas unitarias
+docker-compose run --rm artisan test
+
 # Limpiar caché
 docker-compose run --rm artisan cache:clear
 ```
@@ -347,9 +278,6 @@ docker-compose run --rm artisan cache:clear
 ### Comandos Vue.js
 
 ```bash
-# Compilar para producción
-cd frontend
-npm run build
 
 # Verificar tipos TypeScript
 npm run type-check
@@ -357,8 +285,6 @@ npm run type-check
 # Ejecutar linter
 npm run lint
 
-# Ejecutar pruebas unitarias (si están configuradas)
-npm run test
 ```
 
 ## Flujo de Trabajo de Desarrollo
@@ -367,8 +293,7 @@ npm run test
 1. Los componentes se organizan por entidad (comensales, mesas, reservas)
 2. Los servicios manejan la comunicación con la API backend
 3. Los stores (Pinia) gestionan el estado global de la aplicación
-4. Los transformers formatean los datos para su uso en la UI
-5. El composable `usePagination` facilita la implementación de paginación en listados
+4. El composable `usePagination` facilita la implementación de paginación en listados
 
 ### Backend
 1. Los controladores gestionan las peticiones HTTP
@@ -416,20 +341,8 @@ Si encuentra errores de tipo en TypeScript:
 npm run type-check
 ```
 
-## Contribuciones
+## 📞 Contacto
 
-Las contribuciones son bienvenidas. Por favor, siga estos pasos:
-
-1. Fork el repositorio
-2. Cree una rama para su característica (`git checkout -b feature/nueva-caracteristica`)
-3. Haga commit de sus cambios (`git commit -m 'Añadir nueva característica'`)
-4. Haga push a la rama (`git push origin feature/nueva-caracteristica`)
-5. Abra un Pull Request
-
-## Licencia
-
-[MIT](https://choosealicense.com/licenses/mit/)
-
-## Contacto
-
-Si tiene alguna pregunta o sugerencia, por favor contacte con el equipo de desarrollo.
+- 🔗 [LinkedIn](www.linkedin.com/in/kevin-e-parimango-gómez-832315174)  
+- 📱 +51 929686486  
+- ✉️ keving.kpg@gmail.com
