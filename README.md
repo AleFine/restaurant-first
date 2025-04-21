@@ -44,7 +44,7 @@ cd sistema-reservas-restaurante
 docker-compose up -d --build
 ```
 
-Este comando iniciará los siguientes servicios:
+Este comando iniciará los siguientes servicios (contenedores):
 - Servidor web (Nginx) - Puerto 8080
 - PHP-FPM para ejecutar Laravel
 - MySQL - Puerto 3306
