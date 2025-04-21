@@ -1,3 +1,14 @@
+1. **Configuración inicial** (#1)
+   - Commit: `feat(init): configuración inicial del proyecto Laravel`
+   
+2. **Integración Vue.js** (#2)
+   - Commit: `feat(vue): integración de Vue.js con Laravel`
+
+3. **Gestión de Comensales** (#3, #4, #5)
+   - Modelo: `feat(models): creación de modelo y migración para Comensales`
+   - API: `feat(api): endpoints CRUD para Comensales`
+   - UI: `feat(ui): componente Vue.js para listar Comensales`
+
 # Sistema de Reservas de Restaurante
 
 Un sistema básico de reservas para restaurantes con un CRUD para administrar comensales, mesas y reservas. Desarrollado con Vue.js (TypeScript) en el frontend y Laravel en el backend, con el backend contenido en docker.
