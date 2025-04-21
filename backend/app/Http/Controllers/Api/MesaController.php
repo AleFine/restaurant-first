@@ -12,18 +12,50 @@ use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
 use Exception;
 
+/**
+ * @OA\Tag(
+ *     name="Mesas",
+ *     description="Gestión de mesas del restaurante"
+ * )
+ */
 class MesaController extends Controller
 {
     /**
-     * Obtiene una lista paginada de mesas con búsqueda
-     * 
-     * @param Request $request Solicitud HTTP
-     * @return \Illuminate\Http\JsonResponse|MesaResource
-     * 
-     * @throws \Exception Error genérico (500)
-     * 
-     * @queryParam per_page integer Cantidad de elementos por página. Ejemplo: 15
-     * @queryParam searchTerm string Buscar en número de mesa o ubicación. Ejemplo: "terraza"
+     * @OA\Get(
+     *     path="/api/mesas",
+     *     tags={"Mesas"},
+     *     summary="Listar mesas paginadas",
+     *     operationId="getMesas",
+     *     @OA\Parameter(
+     *         name="per_page",
+     *         in="query",
+     *         description="Items por página",
+     *         required=false,
+     *         @OA\Schema(type="integer", example=15)
+     *     ),
+     *     @OA\Parameter(
+     *         name="searchTerm",
+     *         in="query",
+     *         description="Buscar por número o ubicación",
+     *         required=false,
+     *         @OA\Schema(type="string", example="Terraza")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de mesas",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/MesaResource")),
+     *             @OA\Property(property="links", ref="#/components/schemas/PaginationLinks"),
+     *             @OA\Property(property="meta", ref="#/components/schemas/PaginationMeta")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Error interno",
+     *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
+     *     )
+     * )
      */
     public function index(Request $request)
     {
@@ -50,18 +82,31 @@ class MesaController extends Controller
     }
 
     /**
-     * Crea una nueva mesa en el sistema
-     * 
-     * @param Request $request Solicitud HTTP con datos de la mesa
-     * @return \Illuminate\Http\JsonResponse|MesaResource
-     * 
-     * @throws ValidationException Validación fallida (422)
-     * @throws QueryException Error de base de datos (409 o 500)
-     * @throws \Exception Error genérico (500)
-     * 
-     * @bodyParam numero_mesa string required Número único de mesa. Ejemplo: "MESA-01"
-     * @bodyParam capacidad integer required Capacidad mínima 1. Ejemplo: 4
-     * @bodyParam ubicacion string nullable Ubicación de la mesa. Ejemplo: "Terraza"
+     * @OA\Post(
+     *     path="/api/mesas",
+     *     tags={"Mesas"},
+     *     summary="Crear nueva mesa",
+     *     operationId="createMesa",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/MesaRequest")
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Mesa creada",
+     *         @OA\JsonContent(ref="#/components/schemas/MesaResource")
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validación fallida",
+     *         @OA\JsonContent(ref="#/components/schemas/ValidationErrorResponse")
+     *     ),
+     *     @OA\Response(
+     *         response=409,
+     *         description="Conflicto - Número de mesa duplicado",
+     *         @OA\JsonContent(ref="#/components/schemas/ConflictResponse")
+     *     )
+     * )
      */
     public function store(Request $request)
     {
@@ -105,13 +150,34 @@ class MesaController extends Controller
     }
 
     /**
-     * Muestra los detalles de una mesa específica
-     * 
-     * @param int $id ID único de la mesa
-     * @return \Illuminate\Http\JsonResponse|MesaResource
-     * 
-     * @throws ModelNotFoundException Mesa no encontrada (404)
-     * @throws \Exception Error genérico (500)
+     * @OA\Get(
+     *     path="/api/mesas/{id}",
+     *     tags={"Mesas"},
+     *     summary="Obtener mesa específica",
+     *     operationId="getMesa",
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID de la mesa",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Detalles de la mesa",
+     *         @OA\JsonContent(ref="#/components/schemas/MesaResource")
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="No encontrada",
+     *         @OA\JsonContent(ref="#/components/schemas/NotFoundResponse")
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Error interno",
+     *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
+     *     )
+     * )
      */
     public function show($id)
     {
@@ -131,20 +197,43 @@ class MesaController extends Controller
     }
 
     /**
-     * Actualiza los datos de una mesa existente
-     * 
-     * @param Request $request Solicitud HTTP con datos a actualizar
-     * @param int $id ID único de la mesa a actualizar
-     * @return \Illuminate\Http\JsonResponse|MesaResource
-     * 
-     * @throws ModelNotFoundException Mesa no encontrada (404)
-     * @throws ValidationException Validación fallida (422)
-     * @throws QueryException Error de base de datos (409 o 500)
-     * @throws \Exception Error genérico (500)
-     * 
-     * @bodyParam numero_mesa string Número único de mesa (ignorando actual). Ejemplo: "MESA-02"
-     * @bodyParam capacidad integer Capacidad mínima 1. Ejemplo: 6
-     * @bodyParam ubicacion string Ubicación de la mesa. Ejemplo: "Interior"
+     * @OA\Put(
+     *     path="/api/mesas/{id}",
+     *     tags={"Mesas"},
+     *     summary="Actualizar mesa existente",
+     *     operationId="updateMesa",
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID de la mesa",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/MesaRequest")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Mesa actualizada",
+     *         @OA\JsonContent(ref="#/components/schemas/MesaResource")
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="No encontrada",
+     *         @OA\JsonContent(ref="#/components/schemas/NotFoundResponse")
+     *     ),
+     *     @OA\Response(
+     *         response=409,
+     *         description="Conflicto - Número de mesa duplicado",
+     *         @OA\JsonContent(ref="#/components/schemas/ConflictResponse")
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validación fallida",
+     *         @OA\JsonContent(ref="#/components/schemas/ValidationErrorResponse")
+     *     )
+     * )
      */
     public function update(Request $request, $id)
     {
@@ -192,14 +281,42 @@ class MesaController extends Controller
     }
 
     /**
-     * Elimina una mesa del sistema
-     * 
-     * @param int $id ID único de la mesa a eliminar
-     * @return \Illuminate\Http\JsonResponse
-     * 
-     * @throws ModelNotFoundException Mesa no encontrada (404)
-     * @throws QueryException Error de integridad por reservas (409)
-     * @throws \Exception Error genérico (500)
+     * @OA\Delete(
+     *     path="/api/mesas/{id}",
+     *     tags={"Mesas"},
+     *     summary="Eliminar mesa",
+     *     operationId="deleteMesa",
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID de la mesa",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Mesa eliminada",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="message", type="string", example="Mesa eliminada correctamente")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="No encontrada",
+     *         @OA\JsonContent(ref="#/components/schemas/NotFoundResponse")
+     *     ),
+     *     @OA\Response(
+     *         response=409,
+     *         description="Conflicto - Tiene reservas asociadas",
+     *         @OA\JsonContent(ref="#/components/schemas/ConflictResponse")
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Error interno",
+     *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
+     *     )
+     * )
      */
     public function destroy($id)
     {
@@ -243,3 +360,4 @@ class MesaController extends Controller
         }
     }
 }
+

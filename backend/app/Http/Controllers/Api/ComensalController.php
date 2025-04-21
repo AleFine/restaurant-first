@@ -12,18 +12,50 @@ use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
 use Exception;
 
+/**
+ * @OA\Tag(
+ *     name="Comensales",
+ *     description="Gestión de comensales del restaurante"
+ * )
+ */
 class ComensalController extends Controller
 {
     /**
-     * Obtiene una lista paginada de comensales con opción de búsqueda
-     * 
-     * @param Request $request Solicitud HTTP
-     * @return \Illuminate\Http\JsonResponse|ComensalResource
-     * 
-     * @throws \Exception Error genérico (500)
-     * 
-     * @queryParam per_page integer Cantidad de elementos por página. Ejemplo: 15
-     * @queryParam searchTerm string Término para buscar en nombre, correo o teléfono. Ejemplo: "Juan"
+     * @OA\Get(
+     *     path="/api/comensales",
+     *     tags={"Comensales"},
+     *     summary="Listar comensales paginados",
+     *     operationId="getComensales",
+     *     @OA\Parameter(
+     *         name="per_page",
+     *         in="query",
+     *         description="Items por página",
+     *         required=false,
+     *         @OA\Schema(type="integer", example=15)
+     *     ),
+     *     @OA\Parameter(
+     *         name="searchTerm",
+     *         in="query",
+     *         description="Buscar por nombre, correo o teléfono",
+     *         required=false,
+     *         @OA\Schema(type="string", example="Juan")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de comensales",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/ComensalResource")),
+     *             @OA\Property(property="links", ref="#/components/schemas/PaginationLinks"),
+     *             @OA\Property(property="meta", ref="#/components/schemas/PaginationMeta")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Error interno",
+     *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
+     *     )
+     * )
      */
     public function index(Request $request)
     {
@@ -51,19 +83,31 @@ class ComensalController extends Controller
     }
 
     /**
-     * Crea un nuevo comensal en el sistema
-     * 
-     * @param Request $request Solicitud HTTP con datos del comensal
-     * @return \Illuminate\Http\JsonResponse|ComensalResource
-     * 
-     * @throws ValidationException Validación fallida (422)
-     * @throws QueryException Error de base de datos (500 o 409)
-     * @throws \Exception Error genérico (500)
-     * 
-     * @bodyParam nombre string required Nombre del comensal. Ejemplo: "Juan Pérez"
-     * @bodyParam correo string required Email único. Ejemplo: "juan@example.com"
-     * @bodyParam telefono string nullable Teléfono. Ejemplo: "+5491123456789"
-     * @bodyParam direccion string nullable Dirección. Ejemplo: "Calle Falsa 123"
+     * @OA\Post(
+     *     path="/api/comensales",
+     *     tags={"Comensales"},
+     *     summary="Crear nuevo comensal",
+     *     operationId="createComensal",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/ComensalRequest")
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Comensal creado",
+     *         @OA\JsonContent(ref="#/components/schemas/ComensalResource")
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validación fallida",
+     *         @OA\JsonContent(ref="#/components/schemas/ValidationErrorResponse")
+     *     ),
+     *     @OA\Response(
+     *         response=409,
+     *         description="Conflicto - Correo duplicado",
+     *         @OA\JsonContent(ref="#/components/schemas/ConflictResponse")
+     *     )
+     * )
      */
     public function store(Request $request)
     {
@@ -109,13 +153,34 @@ class ComensalController extends Controller
     }
 
     /**
-     * Muestra los detalles de un comensal específico
-     * 
-     * @param int $id ID único del comensal
-     * @return \Illuminate\Http\JsonResponse|ComensalResource
-     * 
-     * @throws ModelNotFoundException Comensal no encontrado (404)
-     * @throws \Exception Error genérico (500)
+     * @OA\Get(
+     *     path="/api/comensales/{id}",
+     *     tags={"Comensales"},
+     *     summary="Obtener comensal específico",
+     *     operationId="getComensal",
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID del comensal",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Detalles del comensal",
+     *         @OA\JsonContent(ref="#/components/schemas/ComensalResource")
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="No encontrado",
+     *         @OA\JsonContent(ref="#/components/schemas/NotFoundResponse")
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Error interno",
+     *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
+     *     )
+     * )
      */
     public function show($id)
     {
@@ -135,21 +200,43 @@ class ComensalController extends Controller
     }
 
     /**
-     * Actualiza los datos de un comensal existente
-     * 
-     * @param Request $request Solicitud HTTP con datos a actualizar
-     * @param int $id ID único del comensal a actualizar
-     * @return \Illuminate\Http\JsonResponse|ComensalResource
-     * 
-     * @throws ModelNotFoundException Comensal no encontrado (404)
-     * @throws ValidationException Validación fallida (422)
-     * @throws QueryException Error de base de datos (500 o 409)
-     * @throws \Exception Error genérico (500)
-     * 
-     * @bodyParam nombre string Nombre del comensal. Ejemplo: "Juan Pérez Actualizado"
-     * @bodyParam correo string Email único (ignorando el actual). Ejemplo: "nuevo@email.com"
-     * @bodyParam telefono string Teléfono. Ejemplo: "+5491187654321"
-     * @bodyParam direccion string Dirección. Ejemplo: "Nueva Dirección 456"
+     * @OA\Put(
+     *     path="/api/comensales/{id}",
+     *     tags={"Comensales"},
+     *     summary="Actualizar comensal existente",
+     *     operationId="updateComensal",
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID del comensal",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/ComensalRequest")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Comensal actualizado",
+     *         @OA\JsonContent(ref="#/components/schemas/ComensalResource")
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="No encontrado",
+     *         @OA\JsonContent(ref="#/components/schemas/NotFoundResponse")
+     *     ),
+     *     @OA\Response(
+     *         response=409,
+     *         description="Conflicto - Correo duplicado",
+     *         @OA\JsonContent(ref="#/components/schemas/ConflictResponse")
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validación fallida",
+     *         @OA\JsonContent(ref="#/components/schemas/ValidationErrorResponse")
+     *     )
+     * )
      */
     public function update(Request $request, $id)
     {
@@ -199,13 +286,42 @@ class ComensalController extends Controller
     }
 
     /**
-     * Elimina un comensal del sistema
-     * 
-     * @param int $id ID único del comensal a eliminar
-     * @return \Illuminate\Http\JsonResponse
-     * 
-     * @throws ModelNotFoundException Comensal no encontrado (404)
-     * @throws \Exception Error genérico (500) o conflicto con reservas (409)
+     * @OA\Delete(
+     *     path="/api/comensales/{id}",
+     *     tags={"Comensales"},
+     *     summary="Eliminar comensal",
+     *     operationId="deleteComensal",
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID del comensal",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Comensal eliminado",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="message", type="string", example="Comensal eliminado correctamente")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="No encontrado",
+     *         @OA\JsonContent(ref="#/components/schemas/NotFoundResponse")
+     *     ),
+     *     @OA\Response(
+     *         response=409,
+     *         description="Conflicto - Tiene reservas asociadas",
+     *         @OA\JsonContent(ref="#/components/schemas/ConflictResponse")
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Error interno",
+     *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
+     *     )
+     * )
      */
     public function destroy($id)
     {
@@ -236,3 +352,166 @@ class ComensalController extends Controller
         }
     }
 }
+
+/**
+ * @OA\Schema(
+ *     schema="PaginationMeta",
+ *     type="object",
+ *     @OA\Property(property="current_page", type="integer", example=1),
+ *     @OA\Property(property="from",         type="integer", example=1),
+ *     @OA\Property(property="last_page",    type="integer", example=5),
+ *     @OA\Property(property="path",         type="string",  example="http://localhost/api/comensales"),
+ *     @OA\Property(property="per_page",     type="integer", example=15),
+ *     @OA\Property(property="to",           type="integer", example=15),
+ *     @OA\Property(property="total",        type="integer", example=75)
+ * )
+ * 
+ * @OA\Schema(
+ *     schema="NotFoundResponse",
+ *     type="object",
+ *     @OA\Property(property="message", type="string", example="Recurso no encontrado")
+ * )
+ *
+ * @OA\Schema(
+ *     schema="ConflictResponse",
+ *     type="object",
+ *     @OA\Property(property="message", type="string", example="Conflicto detectado")
+ * )
+ *
+ * @OA\Schema(
+ *     schema="PaginationLinks",
+ *     type="object",
+ *     @OA\Property(property="first", type="string", example="http://localhost/api/comensales?page=1"),
+ *     @OA\Property(property="last", type="string", example="http://localhost/api/comensales?page=5"),
+ *     @OA\Property(property="prev", type="string", example="http://localhost/api/comensales?page=1"),
+ *     @OA\Property(property="next", type="string", example="http://localhost/api/comensales?page=3")
+ * )
+ *
+ *
+ * @OA\Schema(
+ *     schema="ComensalResource",
+ *     type="object",
+ *     @OA\Property(property="id_comensal", type="integer", example=1),
+ *     @OA\Property(property="nombre", type="string", example="Juan Pérez"),
+ *     @OA\Property(property="correo", type="string", example="juan@example.com"),
+ *     @OA\Property(property="telefono", type="string", example="+5491123456789"),
+ *     @OA\Property(property="direccion", type="string", example="Calle Falsa 123")
+ * )
+ *
+ * @OA\Schema(
+ *     schema="ComensalRequest",
+ *     type="object",
+ *     required={"nombre", "correo"},
+ *     @OA\Property(property="nombre", type="string", example="Juan Pérez"),
+ *     @OA\Property(property="correo", type="string", example="juan@example.com"),
+ *     @OA\Property(property="telefono", type="string", nullable=true, example="+5491123456789"),
+ *     @OA\Property(property="direccion", type="string", nullable=true, example="Calle Falsa 123")
+ * )
+ *
+ * @OA\Schema(
+ *     schema="ErrorResponse",
+ *     type="object",
+ *     @OA\Property(property="message", type="string", example="Error interno del servidor"),
+ *     @OA\Property(property="error", type="string", example="Detalle del error")
+ * )
+ *
+ * @OA\Schema(
+ *     schema="ValidationErrorResponse",
+ *     type="object",
+ *     @OA\Property(property="message", type="string", example="Error de validación"),
+ *     @OA\Property(
+ *         property="errors",
+ *         type="object",
+ *         additionalProperties=@OA\Property(
+ *             type="array",
+ *             @OA\Items(type="string", example="El campo es requerido")
+ *         )
+ *     )
+ * )
+ *
+ * 
+ * @OA\Schema(
+ *     schema="ReservaRequest",
+ *     type="object",
+ *     required={"fecha", "hora", "numero_de_personas", "id_comensal", "id_mesa"},
+ *     @OA\Property(
+ *         property="fecha", 
+ *         type="string", 
+ *         format="date", 
+ *         example="2024-03-15"
+ *     ),
+ *     @OA\Property(
+ *         property="hora", 
+ *         type="string", 
+ *         format="time", 
+ *         example="20:00"
+ *     ),
+ *     @OA\Property(
+ *         property="numero_de_personas", 
+ *         type="integer", 
+ *         minimum=1,
+ *         example=4
+ *     ),
+ *     @OA\Property(
+ *         property="id_comensal", 
+ *         type="integer", 
+ *         example=1
+ *     ),
+ *     @OA\Property(
+ *         property="id_mesa", 
+ *         type="integer", 
+ *         example=5
+ *     )
+ * )
+ *
+ * @OA\Schema(
+ *     schema="ReservaResource",
+ *     type="object",
+ *     @OA\Property(property="id_reserva", type="integer", example=1),
+ *     @OA\Property(property="fecha", type="string", format="date", example="2024-03-15"),
+ *     @OA\Property(property="hora", type="string", format="time", example="20:00"),
+ *     @OA\Property(property="numero_de_personas", type="integer", example=4),
+ *     @OA\Property(
+ *         property="comensal", 
+ *         ref="#/components/schemas/ComensalResource"
+ *     ),
+ *     @OA\Property(
+ *         property="mesa", 
+ *         ref="#/components/schemas/MesaResource"
+ *     )
+ * )
+ * 
+ * @OA\Schema(
+ *     schema="MesaRequest",
+ *     type="object",
+ *     required={"numero_mesa", "capacidad"},
+ *     @OA\Property(
+ *         property="numero_mesa", 
+ *         type="string", 
+ *         example="MESA-01"
+ *     ),
+ *     @OA\Property(
+ *         property="capacidad", 
+ *         type="integer", 
+ *         minimum=1,
+ *         example=4
+ *     ),
+ *     @OA\Property(
+ *         property="ubicacion", 
+ *         type="string", 
+ *         nullable=true,
+ *         example="Terraza"
+ *     )
+ * )
+ *
+ * @OA\Schema(
+ *     schema="MesaResource",
+ *     type="object",
+ *     @OA\Property(property="id_mesa", type="integer", example=1),
+ *     @OA\Property(property="numero_mesa", type="string", example="MESA-01"),
+ *     @OA\Property(property="capacidad", type="integer", example=4),
+ *     @OA\Property(property="ubicacion", type="string", example="Terraza")
+ * )
+ * 
+ */
+class SwaggerSchemasDummy {}

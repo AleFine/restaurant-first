@@ -15,19 +15,57 @@ use Illuminate\Validation\ValidationException;
 use Exception;
 use Carbon\Carbon;
 
+/**
+ * @OA\Tag(
+ *     name="Reservas",
+ *     description="Gestión de reservas del restaurante"
+ * )
+ */
 class ReservaController extends Controller
 {
     /**
-     * Obtiene listado paginado de reservas con filtros
-     * 
-     * @param Request $request Solicitud HTTP
-     * @return \Illuminate\Http\JsonResponse|ReservaResource
-     * 
-     * @throws \Exception Error genérico (500)
-     * 
-     * @queryParam per_page integer Cantidad de elementos por página. Ejemplo: 15
-     * @queryParam date string Filtro por fecha (formato Y-m-d). Ejemplo: "2024-03-01"
-     * @queryParam searchTerm string Búsqueda en comensal, mesa o número de personas. Ejemplo: "Juan"
+     * @OA\Get(
+     *     path="/api/reservas",
+     *     tags={"Reservas"},
+     *     summary="Listar reservas paginadas",
+     *     operationId="getReservas",
+     *     @OA\Parameter(
+     *         name="per_page",
+     *         in="query",
+     *         description="Items por página",
+     *         required=false,
+     *         @OA\Schema(type="integer", example=15)
+     *     ),
+     *     @OA\Parameter(
+     *         name="date",
+     *         in="query",
+     *         description="Filtrar por fecha (YYYY-MM-DD)",
+     *         required=false,
+     *         @OA\Schema(type="string", format="date", example="2024-03-15")
+     *     ),
+     *     @OA\Parameter(
+     *         name="searchTerm",
+     *         in="query",
+     *         description="Buscar por comensal, mesa o número de personas",
+     *         required=false,
+     *         @OA\Schema(type="string", example="Juan")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de reservas",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/ReservaResource")),
+     *             @OA\Property(property="links", ref="#/components/schemas/PaginationLinks"),
+     *             @OA\Property(property="meta", ref="#/components/schemas/PaginationMeta")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Error interno",
+     *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
+     *     )
+     * )
      */
     public function index(Request $request)
     {
@@ -70,20 +108,31 @@ class ReservaController extends Controller
     }
 
     /**
-     * Crea una nueva reserva
-     * 
-     * @param Request $request Solicitud HTTP con datos de reserva
-     * @return \Illuminate\Http\JsonResponse|ReservaResource
-     * 
-     * @throws ValidationException Validación fallida (422)
-     * @throws QueryException Error de base de datos (409 o 500)
-     * @throws \Exception Error genérico (500)
-     * 
-     * @bodyParam fecha date required Fecha futura (formato Y-m-d). Ejemplo: "2024-03-15"
-     * @bodyParam hora time required Hora (formato H:i). Ejemplo: "20:00"
-     * @bodyParam numero_de_personas integer required Mínimo 1. Ejemplo: 4
-     * @bodyParam id_comensal integer required ID de comensal existente. Ejemplo: 1
-     * @bodyParam id_mesa integer required ID de mesa existente. Ejemplo: 5
+     * @OA\Post(
+     *     path="/api/reservas",
+     *     tags={"Reservas"},
+     *     summary="Crear nueva reserva",
+     *     operationId="createReserva",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/ReservaRequest")
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Reserva creada",
+     *         @OA\JsonContent(ref="#/components/schemas/ReservaResource")
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validación fallida",
+     *         @OA\JsonContent(ref="#/components/schemas/ValidationErrorResponse")
+     *     ),
+     *     @OA\Response(
+     *         response=409,
+     *         description="Conflicto - Mesa ocupada",
+     *         @OA\JsonContent(ref="#/components/schemas/ConflictResponse")
+     *     )
+     * )
      */
     public function store(Request $request)
     {
@@ -143,13 +192,34 @@ class ReservaController extends Controller
     }
 
     /**
-     * Muestra detalles de una reserva específica
-     * 
-     * @param int $id ID único de la reserva
-     * @return \Illuminate\Http\JsonResponse|ReservaResource
-     * 
-     * @throws ModelNotFoundException Reserva no encontrada (404)
-     * @throws \Exception Error genérico (500)
+     * @OA\Get(
+     *     path="/api/reservas/{id}",
+     *     tags={"Reservas"},
+     *     summary="Obtener reserva específica",
+     *     operationId="getReserva",
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID de la reserva",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Detalles de la reserva",
+     *         @OA\JsonContent(ref="#/components/schemas/ReservaResource")
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="No encontrada",
+     *         @OA\JsonContent(ref="#/components/schemas/NotFoundResponse")
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Error interno",
+     *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
+     *     )
+     * )
      */
     public function show($id)
     {
@@ -169,22 +239,43 @@ class ReservaController extends Controller
     }
 
     /**
-     * Actualiza una reserva existente
-     * 
-     * @param Request $request Solicitud HTTP con datos a actualizar
-     * @param int $id ID único de la reserva
-     * @return \Illuminate\Http\JsonResponse|ReservaResource
-     * 
-     * @throws ModelNotFoundException Reserva no encontrada (404)
-     * @throws ValidationException Validación fallida (422)
-     * @throws QueryException Error de base de datos (409 o 500)
-     * @throws \Exception Error genérico (500)
-     * 
-     * @bodyParam fecha date Fecha futura (formato Y-m-d). Ejemplo: "2024-03-16"
-     * @bodyParam hora time Hora (formato H:i:s). Ejemplo: "20:30:00"
-     * @bodyParam numero_de_personas integer Mínimo 1. Ejemplo: 5
-     * @bodyParam id_comensal integer ID de comensal existente. Ejemplo: 2
-     * @bodyParam id_mesa integer ID de mesa existente. Ejemplo: 6
+     * @OA\Put(
+     *     path="/api/reservas/{id}",
+     *     tags={"Reservas"},
+     *     summary="Actualizar reserva existente",
+     *     operationId="updateReserva",
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID de la reserva",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/ReservaRequest")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Reserva actualizada",
+     *         @OA\JsonContent(ref="#/components/schemas/ReservaResource")
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="No encontrada",
+     *         @OA\JsonContent(ref="#/components/schemas/NotFoundResponse")
+     *     ),
+     *     @OA\Response(
+     *         response=409,
+     *         description="Conflicto - Mesa ocupada",
+     *         @OA\JsonContent(ref="#/components/schemas/ConflictResponse")
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validación fallida",
+     *         @OA\JsonContent(ref="#/components/schemas/ValidationErrorResponse")
+     *     )
+     * )
      */
     public function update(Request $request, $id)
     {
@@ -258,13 +349,37 @@ class ReservaController extends Controller
     }
 
     /**
-     * Elimina una reserva
-     * 
-     * @param int $id ID único de la reserva
-     * @return \Illuminate\Http\JsonResponse
-     * 
-     * @throws ModelNotFoundException Reserva no encontrada (404)
-     * @throws \Exception Error genérico (500)
+     * @OA\Delete(
+     *     path="/api/reservas/{id}",
+     *     tags={"Reservas"},
+     *     summary="Eliminar reserva",
+     *     operationId="deleteReserva",
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID de la reserva",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Reserva eliminada",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="message", type="string", example="Reserva eliminada correctamente")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="No encontrada",
+     *         @OA\JsonContent(ref="#/components/schemas/NotFoundResponse")
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Error interno",
+     *         @OA\JsonContent(ref="#/components/schemas/ErrorResponse")
+     *     )
+     * )
      */
     public function destroy($id)
     {
@@ -288,3 +403,9 @@ class ReservaController extends Controller
         }
     }
 }
+
+/**
+
+ *
+ * 
+ */

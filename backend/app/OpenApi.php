@@ -14,7 +14,10 @@ use OpenApi\Annotations as OA;
  *     url="http://localhost:8080",
  *     description="Servidor local"
  * )
+ *
+ 
  */
+
 class OpenApi
 {
     // Clase vacía utilizada solo para contener las anotaciones de OpenAPI
