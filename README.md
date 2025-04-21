@@ -10,7 +10,7 @@ Este proyecto implementa un sistema de reservas para restaurantes que permite:
 - Crear y gestionar reservas
 
 La aplicación está estructurada en tres componentes principales:
-- Frontend desarrollado en Vue.js con TypeScript
+- Frontend desarrollado en Vue.js, Vuetify y TypeScript
 - Backend API RESTful desarrollado en Laravel (incluye test unitarios)
 - Entorno de contenedores Docker para desarrollo y despliegue
 
