@@ -1,24 +1,33 @@
 # Sistema de Reservas de Restaurante
 
-Un sistema completo de gestión de reservas para restaurantes con un CRUD para administrar comensales, mesas y reservas. Desarrollado con Vue.js (TypeScript) en el frontend y Laravel en el backend, contenido en Docker para facilitar su despliegue.
+Un sistema básico de reservas para restaurantes con un CRUD para administrar comensales, mesas y reservas. Desarrollado con Vue.js (TypeScript) en el frontend y Laravel en el backend, con el backend contenido en docker.
 
 ## Descripción del Proyecto
 
 Este proyecto implementa un sistema de reservas para restaurantes que permite:
 - Gestionar información de comensales
-- Administrar las mesas disponibles
+- Gestionar información de las mesas
 - Crear y gestionar reservas
 
 La aplicación está estructurada en tres componentes principales:
 - Frontend desarrollado en Vue.js con TypeScript
-- Backend API RESTful desarrollado en Laravel
+- Backend API RESTful desarrollado en Laravel (incluye test unitarios)
 - Entorno de contenedores Docker para desarrollo y despliegue
 
 ## Requisitos Previos
 
-- [Docker](https://www.docker.com/get-started)
-- [Docker Compose](https://docs.docker.com/compose/install/)
-- [Git](https://git-scm.com/downloads)
+- [Docker](https://www.docker.com/get-started)  
+- [Docker Compose](https://docs.docker.com/compose/install/)  
+- [Git](https://git-scm.com/downloads)  
+- [Node.js (incluye npm)](https://nodejs.org/) – Se recomienda instalar la versión **LTS**
+
+> ⚠️ **Nota para usuarios de Windows**:  
+> Se recomienda activar [WSL 2 (Windows Subsystem for Linux)](https://learn.microsoft.com/windows/wsl/install) y configurarlo como backend de Docker para un mejor rendimiento y compatibilidad.  
+> Puedes instalar WSL directamente desde PowerShell ejecutando:
+>
+> ```powershell
+> wsl --install
+> 
 
 ## Instalación y Configuración
 
@@ -39,7 +48,9 @@ Este comando iniciará los siguientes servicios:
 - Servidor web (Nginx) - Puerto 8080
 - PHP-FPM para ejecutar Laravel
 - MySQL - Puerto 3306
-- phpMyAdmin - Puerto 8090
+- phpMyAdmin - Puerto 8090 (en caso no se tuviese un administrador para verificar los registros de la base de datos)
+
+> Aunque el archivo `docker-compose.yml` define **6 servicios**, solo **4 de ellos se ejecutan de forma persistente** al iniciar la aplicación. Los otros 2 (`composer` y `artisan`) se ejecutan solo cuando es necesario.
 
 ### 3. Configurar el Backend (Laravel)
 
@@ -47,16 +58,23 @@ Este comando iniciará los siguientes servicios:
 # Entrar al contenedor de Composer para instalar dependencias
 docker-compose run --rm composer install
 
-# Copiar archivo de variables de entorno
-docker-compose run --rm php cp .env.example .env
+# Copiar los archivos de variables de entorno
 
-# Generar clave de aplicación
-docker-compose run --rm artisan key:generate
+# .env (laravel)
+copy .\backend\.env.example .\backend\.env
+
+# .env (docker mysql)
+copy .\docker\mysql\.env.example .\docker\mysql\.env
+
+# Los .env ya están configurados con credenciales de muestra, 
+# no es necesario editarlos a menos que se tenga 
+# el puerto 3306 de Mysql ocupado (si fuera el caso, tambien
+# se tendría que editar el docker-compose.yml).
 
 # Ejecutar migraciones
 docker-compose run --rm artisan migrate
 
-# Cargar datos de prueba
+# Para poblar la base de datos con datos falsos.
 docker-compose run --rm artisan db:seed
 ```
 
@@ -83,8 +101,12 @@ backend/
 │   ├── Models/           # Modelos para comensales, mesas y reservas
 │   └── Resources/        # Recursos API para transformación de datos
 ├── database/
-│   ├── migrations/       # Migraciones para crear las tablas
-│   └── seeders/         # Seeders para datos de prueba
+│   ├── factories/       # Factories para crear datos falsos
+│   ├── migrations/      # Migraciones para crear las tablas
+│   └── seeders/         # Seeders para ejecutar los factories
+├── tests/
+│   ├── Feature/       # Gestión de Tests de características
+│   └── Unit/         # Gestión de Tests Unitarios 
 └── routes/
     └── api.php          # Definición de rutas API
 ```
@@ -104,16 +126,14 @@ frontend/
 ├── router/
 │   └── index.ts         # Configuración de rutas de Vue Router
 ├── services/
-│   ├── api.ts           # Servicio base para API
-│   ├── comensalService.ts # Servicio para gestionar comensales
-│   ├── mesaService.ts   # Servicio para gestionar mesas
-│   └── reservaService.ts # Servicio para gestionar reservas
+│   ├── api.ts           # Instancia de Axios para las peticiones HTTP
+│   ├── comensalService.ts # Servicio para gestionar peticiones de comensales
+│   ├── mesaService.ts   # Servicio para gestionar peticiones de mesas
+│   └── reservaService.ts # Servicio para gestionar peticiones de reservas
 ├── stores/
 │   ├── comensalStore.ts # Store para estado de comensales (Pinia)
 │   ├── mesaStore.ts     # Store para estado de mesas (Pinia)
 │   └── reservaStore.ts  # Store para estado de reservas (Pinia)
-├── transformers/
-│   └── reservaTransformer.ts # Transformación de datos
 ├── types/
 │   └── index.ts         # Definiciones de tipos TypeScript
 ├── views/
@@ -127,6 +147,7 @@ frontend/
 ```
 docker/
 ├── dockerfiles/         # Archivos Dockerfile
+├── mysql/               # Almacenamiento de la database
 └── nginx/               # Configuración de Nginx
 ```
 
@@ -139,13 +160,13 @@ docker/
 - Pinia para gestión de estado
 - Vite como bundler y servidor de desarrollo
 - Patrón de servicios para comunicación con API
-- Transformers para formateo de datos
 
 ### Backend
-- Laravel 10
+- Laravel 12
 - Eloquent ORM
 - API Resources para transformación de respuestas
 - Migraciones y Seeders para gestión de base de datos
+- PHPUnit y Factories para asegurar las pruebas unitarias
 
 ### Infraestructura
 - Docker y Docker Compose
@@ -158,8 +179,6 @@ docker/
 - **Frontend**: Acceda a la aplicación en [http://localhost:8080](http://localhost:8080)
 - **API Backend**: Las rutas API están disponibles en [http://localhost:8080/api](http://localhost:8080/api)
 - **phpMyAdmin**: Gestión de base de datos en [http://localhost:8090](http://localhost:8090)
-  - Usuario: root
-  - Contraseña: root.pa55
 
 ## API Reference
 
